@@ -1,18 +1,22 @@
-<!DOCTYPE html>
-
-<html lang="zh-CN"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>构建你的时间基准线 - 时值 TimeValue</title>
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>时值 TimeValue</title>
+<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
-                    "colors": {
+                    colors: {
                         "secondary-container": "#e0dfe4",
                         "surface-bright": "#f9f9fb",
                         "tertiary-fixed-dim": "#4edea3",
@@ -61,13 +65,13 @@
                         "surface-container-low": "#f3f3f5",
                         "surface-dim": "#d9dadc"
                     },
-                    "borderRadius": {
+                    borderRadius: {
                         "DEFAULT": "0.25rem",
                         "lg": "0.5rem",
                         "xl": "0.75rem",
                         "full": "9999px"
                     },
-                    "spacing": {
+                    spacing: {
                         "stack-md": "16px",
                         "unit": "4px",
                         "stack-sm": "8px",
@@ -75,7 +79,7 @@
                         "stack-lg": "32px",
                         "gutter-card": "16px"
                     },
-                    "fontFamily": {
+                    fontFamily: {
                         "body-lg": ["Inter"],
                         "headline-lg": ["Inter"],
                         "headline-md": ["Inter"],
@@ -84,7 +88,7 @@
                         "body-md": ["Inter"],
                         "headline-lg-mobile": ["Inter"]
                     },
-                    "fontSize": {
+                    fontSize: {
                         "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
                         "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
                         "headline-md": ["24px", { "lineHeight": "30px", "fontWeight": "600" }],
@@ -98,198 +102,146 @@
         }
     </script>
 <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        /* Hide scrollbar for clean aesthetic */
-        ::-webkit-scrollbar { display: none; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+        .pt-safe { padding-top: env(safe-area-inset-top, 24px); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         
-        /* Custom Input Underline Animation */
-        .input-wrapper::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0%;
-            height: 1px;
-            background-color: theme('colors.primary');
-            transition: width 0.3s ease;
+        /* Subtle entrance animation */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .input-wrapper:focus-within::after {
-            width: 100%;
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     </style>
 </head>
-<body class="bg-surface-container-lowest text-on-surface antialiased min-h-screen">
-<!-- TopAppBar (Shared Component) -->
-<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-page h-14 bg-surface-container-lowest flat no shadows">
-<button class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-200">
-<span class="material-symbols-outlined" data-icon="menu">menu</span>
+<body class="bg-background text-on-background font-body-lg text-body-lg min-h-screen antialiased flex flex-col">
+<!-- Shared Component: TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-page h-14 bg-surface text-primary pt-safe">
+<button class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-surface-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary text-[24px]">menu</span>
 </button>
-<div class="font-headline-md text-headline-md-mobile font-bold tracking-tight text-primary">
+<h1 class="font-headline-md text-headline-md-mobile md:text-headline-md font-bold tracking-tight text-primary absolute left-1/2 -translate-x-1/2">
             时值 TimeValue
-        </div>
-<div class="w-6"></div> <!-- Spacer for centering -->
+        </h1>
+<div class="w-10"></div> <!-- Placeholder for optical balance -->
 </header>
-<!-- Main Content Canvas -->
-<!-- Navigation Shell Suppressed: This is an onboarding/setup screen (Linear/Transactional intent). -->
-<main class="pt-[80px] pb-[120px] px-margin-page max-w-md mx-auto">
-<!-- Header -->
-<div class="mb-stack-lg">
-<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary tracking-tight">
-                构建你的时间基准线
-            </h1>
-<p class="font-body-md text-body-md text-on-surface-variant mt-stack-sm">
-                通过量化你的基础投入，计算出你时间的真实价值。
-            </p>
+<!-- Main Canvas -->
+<main class="flex-1 px-margin-page pt-28 pb-32 flex flex-col gap-stack-lg max-w-md mx-auto w-full">
+<!-- Header & Hero Value -->
+<section class="flex flex-col gap-stack-sm animate-fade-in-up">
+<h2 class="font-body-md text-body-md text-on-surface-variant uppercase tracking-wider">时间价值</h2>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-display-lg text-primary" id="hourly-wage-display">¥56.82</span>
+<span class="font-body-md text-body-md text-on-surface-variant">/ 小时</span>
 </div>
-<!-- Form: Basic Info -->
-<section class="flex flex-col gap-stack-md mb-stack-lg">
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
-                    月薪 (Monthly Salary)
-                </label>
-<div class="flex items-center">
-<span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="monthlySalary" placeholder="0.00" type="number"/>
-</div>
-</div>
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
-                    每月工作天数 (Work days per month)
-                </label>
-<div class="flex items-center">
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="workDays" placeholder="22" type="number"/>
-<span class="font-body-lg text-body-lg text-on-surface-variant ml-2">天</span>
-</div>
-</div>
-<div class="grid grid-cols-2 gap-gutter-card">
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
-                        上班时间
-                    </label>
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors outline-none" id="workStart" type="time" value="09:00"/>
-</div>
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
-                        下班时间
-                    </label>
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors outline-none" id="workEnd" type="time" value="18:00"/>
-</div>
-</div>
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
-                    午休时间 (Lunch break)
-                </label>
-<div class="flex items-center">
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="lunchBreak" placeholder="1.5" step="0.5" type="number"/>
-<span class="font-body-lg text-body-lg text-on-surface-variant ml-2">小时</span>
-</div>
-</div>
-<div class="grid grid-cols-2 gap-gutter-card">
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
-                        当前年龄 (Current Age)
-                    </label>
-<div class="flex items-center">
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="currentAge" placeholder="25" type="number"/>
-<span class="font-body-lg text-body-lg text-on-surface-variant ml-2">岁</span>
-</div>
-</div>
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
-                        预期寿命 (Expected Life)
-                    </label>
-<div class="flex items-center">
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="expectedLife" type="number" value="80"/>
-<span class="font-body-lg text-body-lg text-on-surface-variant ml-2">岁</span>
-</div>
-</div>
-</div>
+<div class="h-[1px] w-12 bg-primary/10 mt-2"></div>
 </section>
-<!-- Section: Fixed Expenses -->
-<section class="mt-stack-lg">
-<h2 class="font-headline-md text-headline-md text-primary mb-stack-md flex items-center gap-2">
-                固定支出
-            </h2>
-<div class="flex flex-col gap-stack-md">
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
-<span class="material-symbols-outlined text-[16px]" data-icon="home">home</span> 房租/房贷 (Rent)
-                    </label>
-<div class="flex items-center">
-<span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="rentExpense" placeholder="0.00" type="number"/>
+<!-- Life Price List Section -->
+<section class="flex flex-col gap-stack-md animate-fade-in-up" style="animation-delay: 0.1s;">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-headline-md-mobile text-headline-md-mobile text-primary">人生价格表</h3>
 </div>
+<div class="flex flex-col gap-stack-md w-full" id="items-container">
+<!-- Example Item Card -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col gap-stack-md transition-transform active:scale-[0.98] duration-300" id="example-item-card"><div class="flex justify-between items-start"><h4 class="font-body-lg text-body-lg text-primary font-medium">iPhone 15 Pro</h4><span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-1 rounded item-price">¥8,999</span></div><div class="bg-surface-bright rounded-lg p-4 flex flex-col gap-1 border border-surface-variant/50"><div class="flex items-baseline gap-2"><span class="font-body-md text-body-md text-on-surface-variant">需要工作</span><span class="font-headline-md-mobile text-headline-md-mobile text-primary tracking-tight req-hours">159</span><span class="font-body-md text-body-md text-on-surface-variant">小时</span></div><p class="font-label-sm text-label-sm text-on-surface-variant opacity-80 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span>约 <span class="req-days">20</span> 个工作日</p></div></div>
 </div>
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
-<span class="material-symbols-outlined text-[16px]" data-icon="directions_subway">directions_subway</span> 通勤 (Commute)
-                    </label>
-<div class="flex items-center">
-<span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="commuteExpense" placeholder="0.00" type="number"/>
-</div>
-</div>
-<div class="relative group input-wrapper pb-unit">
-<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
-<span class="material-symbols-outlined text-[16px]" data-icon="restaurant">restaurant</span> 三餐 (Meals)
-                    </label>
-<div class="flex items-center">
-<span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
-<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="mealsExpense" placeholder="0.00" type="number"/>
-</div>
-</div>
-</div>
-</section>
-<!-- Primary Action Button -->
-<div class="fixed bottom-0 left-0 w-full p-margin-page pb-10 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest to-transparent md:relative md:p-0 md:mt-stack-lg md:bg-none z-10">
-<button class="w-full h-[52px] bg-primary text-on-primary font-body-md text-body-md rounded-[16px] flex items-center justify-center font-medium shadow-[0_10px_30px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-transform duration-200" id="saveBtn">
-                开始计算
-                <span class="material-symbols-outlined ml-2 text-[20px]" data-icon="arrow_forward">arrow_forward</span>
+<!-- Add New Item Button -->
+<button class="w-full flex items-center justify-center p-6 border border-dashed border-outline-variant rounded-xl bg-transparent hover:bg-surface-container-low text-on-surface-variant transition-colors active:scale-[0.98] duration-200 mt-2 gap-2" id="btn-add-item">
+<span class="material-symbols-outlined">add</span>
+<span class="font-body-md text-body-md">添加新目标</span>
 </button>
-</div>
+</section>
 </main>
+<!-- Shared Component: BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-page py-4 pb-safe bg-surface/95 backdrop-blur-md shadow-[0_-10px_30px_rgba(0,0,0,0.04)] rounded-t-xl">
+<!-- Inactive Tab -->
+<a class="flex flex-col items-center justify-center text-outline transition-transform duration-300 ease-out hover:text-primary active:scale-95" href="/salary">
+<span class="material-symbols-outlined text-[24px] mb-1">payments</span>
+<span class="font-label-sm text-label-sm">工资</span>
+</a>
+<!-- Active Tab (Semantic Match: "Time" -> "时间") -->
+<a class="flex flex-col items-center justify-center text-primary font-bold transition-transform duration-300 ease-out scale-[1.02]" href="/time">
+<span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings: 'FILL' 1;">schedule</span>
+<span class="font-label-sm text-label-sm">时间</span>
+</a>
+<!-- Inactive Tab -->
+<a class="flex flex-col items-center justify-center text-outline transition-transform duration-300 ease-out hover:text-primary active:scale-95" href="/life">
+<span class="material-symbols-outlined text-[24px] mb-1">auto_awesome</span>
+<span class="font-label-sm text-label-sm">人生</span>
+</a>
+</nav>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Load existing data if available
-        const existingData = localStorage.getItem('timeValueData');
-        if (existingData) {
-            try {
-                const data = JSON.parse(existingData);
-                document.getElementById('monthlySalary').value = data.monthlySalary || '';
-                document.getElementById('workDays').value = data.workDays || '22';
-                document.getElementById('workStart').value = data.workStart || '09:00';
-                document.getElementById('workEnd').value = data.workEnd || '18:00';
-                document.getElementById('lunchBreak').value = data.lunchBreak || '1.5';
-                document.getElementById('currentAge').value = data.currentAge || '';
-                document.getElementById('expectedLife').value = data.expectedLife || '80';
-                document.getElementById('rentExpense').value = data.rentExpense || '';
-                document.getElementById('commuteExpense').value = data.commuteExpense || '';
-                document.getElementById('mealsExpense').value = data.mealsExpense || '';
-            } catch (e) {
-                console.error("Error parsing saved data", e);
-            }
+        // 1. Retrieve data from localStorage (or defaults)
+        const salary = parseFloat(localStorage.getItem('salary') || '10000');
+        const workDays = parseFloat(localStorage.getItem('workDays') || '22');
+        const workHours = parseFloat(localStorage.getItem('workHours') || '8');
+
+        // 2. Calculate Hourly Wage
+        const hourlyWage = salary / (workDays * workHours);
+        document.getElementById('hourly-wage-display').innerText = `¥${hourlyWage.toFixed(2)}`;
+
+        // Function to update a card's calculations based on its price
+        function updateCardCalculations(card) {
+            const priceText = card.querySelector('.item-price').innerText.replace(/[^\d.-]/g, '');
+            const price = parseFloat(priceText);
+            if (isNaN(price)) return;
+
+            const reqHours = price / hourlyWage;
+            const reqDays = reqHours / workHours;
+
+            card.querySelector('.req-hours').innerText = Math.ceil(reqHours);
+            card.querySelector('.req-days').innerText = Math.ceil(reqDays);
         }
 
-        document.getElementById('saveBtn').addEventListener('click', () => {
-            const data = {
-                monthlySalary: document.getElementById('monthlySalary').value,
-                workDays: document.getElementById('workDays').value,
-                workStart: document.getElementById('workStart').value,
-                workEnd: document.getElementById('workEnd').value,
-                lunchBreak: document.getElementById('lunchBreak').value,
-                currentAge: document.getElementById('currentAge').value,
-                expectedLife: document.getElementById('expectedLife').value,
-                rentExpense: document.getElementById('rentExpense').value,
-                commuteExpense: document.getElementById('commuteExpense').value,
-                mealsExpense: document.getElementById('mealsExpense').value
-            };
+        // Initialize existing example card
+        const exampleCard = document.getElementById('example-item-card');
+        if (exampleCard) {
+            updateCardCalculations(exampleCard);
+        }
+
+        // 3. Handle adding new items
+        document.getElementById('btn-add-item').addEventListener('click', () => {
+            const name = prompt("请输入物品名称 (如: MacBook Pro):");
+            if (!name) return;
+            const priceStr = prompt("请输入物品价格 (如: 12999):");
+            if (!priceStr) return;
             
-            localStorage.setItem('timeValueData', JSON.stringify(data));
+            const price = parseFloat(priceStr);
+            if (isNaN(price)) {
+                alert("请输入有效的数字价格");
+                return;
+            }
+
+            const reqHours = price / hourlyWage;
+            const reqDays = reqHours / workHours;
+
+            const newCardHTML = `
+                <div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col gap-stack-md transition-transform active:scale-[0.98] duration-300 animate-fade-in-up">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-body-lg text-body-lg text-primary font-medium">${name}</h4>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-1 rounded item-price">¥${price.toLocaleString()}</span>
+                    </div>
+                    <div class="bg-surface-bright rounded-lg p-4 flex flex-col gap-1 border border-surface-variant/50">
+                        <div class="flex items-baseline gap-2">
+                            <span class="font-body-md text-body-md text-on-surface-variant">需要工作</span>
+                            <span class="font-headline-md-mobile text-headline-md-mobile text-primary tracking-tight req-hours">${Math.ceil(reqHours)}</span>
+                            <span class="font-body-md text-body-md text-on-surface-variant">小时</span>
+                        </div>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant opacity-80 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                            约 <span class="req-days">${Math.ceil(reqDays)}</span> 个工作日
+                        </p>
+                    </div>
+                </div>
+            `;
             
-            // Redirect to Wage screen (assuming wage.html or similar in standard setup)
-            // Using a generic hash or placeholder redirect as specific file isn't defined
-            window.location.href = 'wage.html'; 
+            document.getElementById('items-container').insertAdjacentHTML('beforeend', newCardHTML);
         });
     });
 </script>
+
+
 </body></html>
