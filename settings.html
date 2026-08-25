@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>构建你的时间基准线 - 时值 TimeValue</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-container": "#e0dfe4",
+                        "surface-bright": "#f9f9fb",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#77767b",
+                        "inverse-surface": "#2f3132",
+                        "secondary-fixed": "#e3e2e7",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-surface-variant": "#46464a",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "secondary": "#5e5e63",
+                        "outline-variant": "#c7c6ca",
+                        "on-secondary-container": "#626267",
+                        "on-secondary-fixed": "#1a1b1f",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#c8c6c8",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e2e2e4",
+                        "surface-container": "#eeeef0",
+                        "error": "#ba1a1a",
+                        "primary": "#030304",
+                        "on-primary-fixed": "#1b1b1d",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c8c6c8",
+                        "tertiary-container": "#002315",
+                        "surface-tint": "#5f5e60",
+                        "on-tertiary-container": "#009869",
+                        "background": "#f9f9fb",
+                        "secondary-fixed-dim": "#c7c6cb",
+                        "primary-fixed": "#e4e2e4",
+                        "on-primary-fixed-variant": "#474649",
+                        "on-primary": "#ffffff",
+                        "on-background": "#1a1c1d",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#002113",
+                        "surface-container-high": "#e8e8ea",
+                        "surface-container-highest": "#e2e2e4",
+                        "inverse-on-surface": "#f0f0f2",
+                        "surface": "#f9f9fb",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1a1c1d",
+                        "on-secondary-fixed-variant": "#46464b",
+                        "tertiary": "#000502",
+                        "primary-container": "#1d1d1f",
+                        "on-primary-container": "#868587",
+                        "surface-container-low": "#f3f3f5",
+                        "surface-dim": "#d9dadc"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "stack-md": "16px",
+                        "unit": "4px",
+                        "stack-sm": "8px",
+                        "margin-page": "24px",
+                        "stack-lg": "32px",
+                        "gutter-card": "16px"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "30px", "fontWeight": "600" }],
+                        "label-sm": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .input-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: #030304;
+            transition: width 0.3s ease;
+        }
+        .input-wrapper:focus-within::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased min-h-screen">
+    <!-- TopAppBar -->
+    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-page h-14 bg-surface-container-lowest">
+        <button class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-200" onclick="window.location.href='index.html'">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div class="font-headline-md text-headline-md-mobile font-bold tracking-tight text-primary">
+            时值 TimeValue
+        </div>
+        <div class="w-6"></div>
+    </header>
+
+    <main class="pt-[80px] pb-[120px] px-margin-page max-w-md mx-auto">
+        <!-- 标题 -->
+        <div class="mb-stack-lg">
+            <h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary tracking-tight">
+                构建你的时间基准线
+            </h1>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-stack-sm">
+                通过量化你的基础投入，计算出你时间的真实价值。
+            </p>
+        </div>
+
+        <!-- 表单 -->
+        <section class="flex flex-col gap-stack-md mb-stack-lg">
+            <!-- 月薪 -->
+            <div class="relative group input-wrapper pb-unit">
+                <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+                    月薪 (Monthly Salary)
+                </label>
+                <div class="flex items-center">
+                    <span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="monthlySalary" placeholder="10000" type="number" step="100" />
+                </div>
+            </div>
+
+            <!-- 工作天数 -->
+            <div class="relative group input-wrapper pb-unit">
+                <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                    每月工作天数 (Work days per month)
+                </label>
+                <div class="flex items-center">
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="workDays" placeholder="22" type="number" step="1" />
+                    <span class="font-body-lg text-body-lg text-on-surface-variant ml-2">天</span>
+                </div>
+            </div>
+
+            <!-- 上下班时间 -->
+            <div class="grid grid-cols-2 gap-gutter-card">
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        上班时间
+                    </label>
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors outline-none" id="workStart" type="time" value="09:00" />
+                </div>
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        下班时间
+                    </label>
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors outline-none" id="workEnd" type="time" value="18:00" />
+                </div>
+            </div>
+
+            <!-- 午休时间 -->
+            <div class="relative group input-wrapper pb-unit">
+                <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                    午休时间 (Lunch break)
+                </label>
+                <div class="flex items-center">
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="lunchBreak" placeholder="1.5" step="0.5" type="number" />
+                    <span class="font-body-lg text-body-lg text-on-surface-variant ml-2">小时</span>
+                </div>
+            </div>
+
+            <!-- 年龄 & 预期寿命 -->
+            <div class="grid grid-cols-2 gap-gutter-card">
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        当前年龄
+                    </label>
+                    <div class="flex items-center">
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="currentAge" placeholder="25" type="number" step="1" />
+                        <span class="font-body-lg text-body-lg text-on-surface-variant ml-2">岁</span>
+                    </div>
+                </div>
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        预期寿命
+                    </label>
+                    <div class="flex items-center">
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="expectedLife" placeholder="100" type="number" step="1" />
+                        <span class="font-body-lg text-body-lg text-on-surface-variant ml-2">岁</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 固定支出 -->
+        <section class="mt-stack-lg">
+            <h2 class="font-headline-md text-headline-md text-primary mb-stack-md flex items-center gap-2">
+                固定支出 (月)
+            </h2>
+            <div class="flex flex-col gap-stack-md">
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">home</span> 房租/房贷
+                    </label>
+                    <div class="flex items-center">
+                        <span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="rentExpense" placeholder="0" type="number" step="100" />
+                    </div>
+                </div>
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">directions_subway</span> 通勤
+                    </label>
+                    <div class="flex items-center">
+                        <span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="commuteExpense" placeholder="0" type="number" step="50" />
+                    </div>
+                </div>
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">restaurant</span> 三餐
+                    </label>
+                    <div class="flex items-center">
+                        <span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="mealsExpense" placeholder="0" type="number" step="100" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 保存按钮 -->
+        <div class="fixed bottom-0 left-0 w-full p-margin-page pb-10 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest to-transparent md:relative md:p-0 md:mt-stack-lg md:bg-none z-10">
+            <button class="w-full h-[52px] bg-primary text-on-primary font-body-md text-body-md rounded-[16px] flex items-center justify-center font-medium shadow-[0_10px_30px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-transform duration-200" id="saveBtn">
+                保存并开始
+                <span class="material-symbols-outlined ml-2 text-[20px]">arrow_forward</span>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载已有数据
+            var saved = localStorage.getItem('timeValueData');
+            if (saved) {
+                try {
+                    var data = JSON.parse(saved);
+                    document.getElementById('monthlySalary').value = data.monthlySalary || '';
+                    document.getElementById('workDays').value = data.workDays || '22';
+                    document.getElementById('workStart').value = data.workStart || '09:00';
+                    document.getElementById('workEnd').value = data.workEnd || '18:00';
+                    document.getElementById('lunchBreak').value = data.lunchBreak || '1.5';
+                    document.getElementById('currentAge').value = data.currentAge || '';
+                    document.getElementById('expectedLife').value = data.expectedLife || '80';
+                    document.getElementById('rentExpense').value = data.rentExpense || '';
+                    document.getElementById('commuteExpense').value = data.commuteExpense || '';
+                    document.getElementById('mealsExpense').value = data.mealsExpense || '';
+                } catch (e) {
+                    console.warn('数据解析失败，使用默认值');
+                }
+            }
+
+            // 保存并跳转
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                // 收集数据
+                var data = {
+                    monthlySalary: parseFloat(document.getElementById('monthlySalary').value) || 0,
+                    workDays: parseFloat(document.getElementById('workDays').value) || 22,
+                    workStart: document.getElementById('workStart').value || '09:00',
+                    workEnd: document.getElementById('workEnd').value || '18:00',
+                    lunchBreak: parseFloat(document.getElementById('lunchBreak').value) || 1.5,
+                    currentAge: parseFloat(document.getElementById('currentAge').value) || 25,
+                    expectedLife: parseFloat(document.getElementById('expectedLife').value) || 80,
+                    rentExpense: parseFloat(document.getElementById('rentExpense').value) || 0,
+                    commuteExpense: parseFloat(document.getElementById('commuteExpense').value) || 0,
+                    mealsExpense: parseFloat(document.getElementById('mealsExpense').value) || 0
+                };
+
+                // 计算每月总支出（用于 wage 页面）
+                data.monthlyExpenses = data.rentExpense + data.commuteExpense + data.mealsExpense;
+
+                // 计算每日工作时长（小时）
+                var startParts = data.workStart.split(':').map(Number);
+                var endParts = data.workEnd.split(':').map(Number);
+                var startMinutes = startParts[0] * 60 + startParts[1];
+                var endMinutes = endParts[0] * 60 + endParts[1];
+                var workMinutes = endMinutes - startMinutes - (data.lunchBreak || 0) * 60;
+                data.workHoursPerDay = Math.max(0, workMinutes / 60);
+
+                // 保存到 localStorage
+                localStorage.setItem('timeValueData', JSON.stringify(data));
+
+                // 跳转到工资页面
+                window.location.href = 'wage.html';
+            });
+        });
+    </script>
+</body>
+</html>
