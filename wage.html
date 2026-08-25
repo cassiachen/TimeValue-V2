@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
-    <title>时值 TimeValue - 工资</title>
+    <title>今日工资 - 时值 TimeValue</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
@@ -131,8 +131,6 @@
         .roll-in {
             animation: roll-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
-        /* 明细弹窗 */
         .bonus-detail-popup {
             position: absolute;
             top: calc(100% + 8px);
@@ -164,9 +162,78 @@
             transform: rotate(45deg);
             border-radius: 2px;
         }
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+        }
+        .pt-safe {
+            padding-top: env(safe-area-inset-top, 24px);
+        }
+
+        /* 引导卡片样式 */
+        .guide-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border: 1px solid #6ffbbe;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .guide-card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 4px 20px rgba(78, 222, 163, 0.2);
+        }
+        .guide-card:active {
+            transform: scale(0.98);
+        }
+        .guide-card .guide-icon {
+            background: #6ffbbe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .guide-card .guide-icon .material-symbols-outlined {
+            font-size: 22px;
+            color: #005236;
+        }
+        .guide-card .guide-text {
+            flex: 1;
+        }
+        .guide-card .guide-text .title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #005236;
+        }
+        .guide-card .guide-text .desc {
+            font-size: 12px;
+            color: #005236;
+            opacity: 0.7;
+            margin-top: 1px;
+        }
+        .guide-card .guide-arrow {
+            color: #005236;
+            opacity: 0.5;
+        }
+        .guide-card .guide-badge {
+            background: #4edea3;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 999px;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body class="bg-surface-container-lowest text-on-surface font-body-md min-h-screen flex flex-col pt-14 pb-[88px] selection:bg-tertiary-fixed selection:text-on-tertiary-fixed">
+
     <!-- TopAppBar -->
     <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-page h-14 bg-surface-container-lowest">
         <button class="w-10 h-10 flex items-center justify-start text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-200" onclick="window.location.href='settings.html'">
@@ -177,24 +244,24 @@
     </header>
 
     <main class="flex-1 px-margin-page flex flex-col mt-8">
-        <!-- Hero Section: Real-time Earnings -->
+
+        <!-- ===== Hero Section: Real-time Earnings ===== -->
         <section class="flex flex-col items-center justify-center py-stack-lg mt-4 mb-stack-md">
             <div class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest mb-unit flex items-center gap-1">
                 今日已赚 <span class="material-symbols-outlined text-[14px]">info</span>
             </div>
             <div class="flex items-baseline gap-1 roll-in">
                 <span class="font-headline-md text-headline-md text-primary translate-y-[-8px]">¥</span>
-                <h2 class="font-display-lg text-display-lg text-primary tracking-tighter" id="hero-counter" style="font-size: 72px; line-height: 1;">0.00</h2>
+                <h2 class="font-display-lg text-display-lg text-primary tracking-tighter" id="hero-counter" style="font-size:72px;line-height:1;">0.00</h2>
             </div>
             <div class="mt-stack-sm flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low text-on-tertiary-container font-label-sm text-label-sm">
-                <span class="material-symbols-outlined text-[14px] animate-realtime" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
+                <span class="material-symbols-outlined text-[14px] animate-realtime" style="font-variation-settings:'FILL'1;">arrow_upward</span>
                 实时增长中
             </div>
         </section>
 
-        <!-- 时薪展示区域（含学习加薪右上角标签） -->
+        <!-- ===== 时薪展示 + 学习加薪标签 ===== -->
         <section class="relative flex flex-col items-center justify-center py-4 mb-4 border-t border-surface-variant/30 pt-6">
-            <!-- 时薪大号显示 -->
             <div class="flex items-baseline gap-2">
                 <span class="font-display-lg text-display-lg text-primary" id="hourly-wage-display">¥0.00</span>
                 <span class="font-body-md text-body-md text-on-surface-variant">/ 小时</span>
@@ -207,7 +274,6 @@
                     <span id="bonus-tag-text">+¥0.00 学习加薪</span>
                     <span class="material-symbols-outlined text-[12px]">expand_more</span>
                 </button>
-                <!-- 明细弹窗 -->
                 <div class="bonus-detail-popup" id="bonus-detail-popup">
                     <div class="font-label-sm text-label-sm text-on-surface-variant mb-2">🎓 学习加薪明细</div>
                     <div id="bonus-detail-list" class="flex flex-col gap-1.5 text-sm">
@@ -221,7 +287,22 @@
             </div>
         </section>
 
-        <!-- Secondary Data: Expenses & Net Value -->
+        <!-- ===== 🆕 学习涨薪引导卡片 ===== -->
+        <section class="mb-4 animate-fade-in-up" id="guide-section">
+            <div class="guide-card" id="learn-guide-btn">
+                <div class="guide-icon">
+                    <span class="material-symbols-outlined">school</span>
+                </div>
+                <div class="guide-text">
+                    <div class="title" id="guide-title">📈 想让自己更值钱？</div>
+                    <div class="desc" id="guide-desc">学习新技能，给自己加薪！已有 <span id="guide-bonus-count">0</span> 元/小时学习加薪</div>
+                </div>
+                <span class="guide-badge" id="guide-badge">去学习 →</span>
+                <span class="material-symbols-outlined guide-arrow">chevron_right</span>
+            </div>
+        </section>
+
+        <!-- ===== Secondary Data: Expenses & Net Value ===== -->
         <section class="grid grid-cols-2 gap-gutter-card mb-stack-lg">
             <div class="flex flex-col items-center justify-center p-stack-md bg-surface-container-low rounded-[20px]">
                 <span class="text-on-surface-variant font-label-sm text-label-sm mb-1">今日已花</span>
@@ -233,7 +314,7 @@
             </div>
         </section>
 
-        <!-- Time & Progress Bento Section -->
+        <!-- ===== Time & Progress ===== -->
         <section class="flex flex-col gap-unit mb-stack-lg">
             <div class="bg-surface-container-low rounded-[24px] p-6 flex flex-col relative overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
                 <div class="flex justify-between items-end mb-4">
@@ -255,7 +336,7 @@
             </div>
         </section>
 
-        <!-- Bottom Hourly Details -->
+        <!-- ===== Bottom Hourly Details ===== -->
         <section class="mt-auto mb-stack-lg px-2">
             <h3 class="font-label-sm text-label-sm text-on-surface-variant mb-stack-md px-2">时薪拆解</h3>
             <ul class="flex flex-col gap-4">
@@ -275,40 +356,40 @@
         </section>
     </main>
 
-    <!-- BottomNavBar -->
-<!-- BottomNavBar -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-page py-4 pb-safe bg-surface/95 backdrop-blur-md shadow-[0_-10px_30px_rgba(0,0,0,0.04)] rounded-t-xl">
+    <!-- ===== BottomNavBar ===== -->
+    <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-page py-4 pb-safe bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_-10px_30px_rgba(0,0,0,0.04)] rounded-t-xl md:hidden">
 
-    <!-- 今日工资 -->
-    <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='wage.html'">
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">payments</span>
-        <span class="font-label-sm text-[11px]">今日工资</span>
-    </button>
+        <button class="flex flex-col items-center justify-center text-primary font-bold hover:opacity-80 transition-opacity active:scale-[1.02] duration-300 ease-out w-16 group" onclick="window.location.href='wage.html'">
+            <div class="relative mb-1">
+                <span class="material-symbols-outlined text-[24px]" style="font-variation-settings:'FILL'1;">payments</span>
+                <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></div>
+            </div>
+            <span class="font-label-sm text-[11px] mt-1">今日工资</span>
+        </button>
 
-    <!-- 学习涨薪 -->
-    <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='learn.html'">
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">school</span>
-        <span class="font-label-sm text-[11px]">学习涨薪</span>
-    </button>
+        <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-opacity active:scale-[1.02] duration-300 ease-out w-16" onclick="window.location.href='learn.html'">
+            <span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings:'FILL'0;">school</span>
+            <span class="font-label-sm text-[11px] mt-1">学习涨薪</span>
+        </button>
 
-    <!-- 时间消费 -->
-    <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='time.html'">
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">schedule</span>
-        <span class="font-label-sm text-[11px]">时间消费</span>
-    </button>
+        <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-opacity active:scale-[1.02] duration-300 ease-out w-16" onclick="window.location.href='time.html'">
+            <span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings:'FILL'0;">schedule</span>
+            <span class="font-label-sm text-[11px] mt-1">时间消费</span>
+        </button>
 
-    <!-- 人生剩余 -->
-    <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='life.html'">
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">auto_awesome</span>
-        <span class="font-label-sm text-[11px]">人生剩余</span>
-    </button>
+        <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-opacity active:scale-[1.02] duration-300 ease-out w-16" onclick="window.location.href='life.html'">
+            <span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings:'FILL'0;">auto_awesome</span>
+            <span class="font-label-sm text-[11px] mt-1">人生剩余</span>
+        </button>
 
-</nav>
+    </nav>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            // ===== 读取数据 =====
+            // ============================================================
+            // 1. 读取数据
+            // ============================================================
             var data = null;
             var saved = localStorage.getItem('timeValueData');
             if (saved) {
@@ -319,16 +400,16 @@
                 }
             }
 
-            // 原始薪资（用户主动输入）
             var salary = data && data.monthlySalary ? data.monthlySalary : 10000;
             var workDays = data && data.workDays ? data.workDays : 22;
             var workHoursPerDay = data && data.workHoursPerDay ? data.workHoursPerDay : 8;
             var monthlyExpenses = data && data.monthlyExpenses ? data.monthlyExpenses : 0;
 
-            // 原始时薪（实际工资）
             var baseHourlyWage = salary / (workDays * workHoursPerDay);
 
-            // ===== 读取学习加薪（假想，不参与计算） =====
+            // ============================================================
+            // 2. 学习加薪（假想，只展示）
+            // ============================================================
             var learningBonus = 0;
             var completedGoals = [];
             var bonusStored = localStorage.getItem('learningTotalBonus');
@@ -337,7 +418,6 @@
                     learningBonus = parseFloat(bonusStored) || 0;
                 } catch (e) {}
             }
-            // 读取已完成的目标明细
             var goalsStored = localStorage.getItem('learningGoals');
             if (goalsStored) {
                 try {
@@ -346,7 +426,9 @@
                 } catch (e) {}
             }
 
-            // ===== 更新学习加薪标签 =====
+            // ============================================================
+            // 3. 更新学习加薪标签（右上角）
+            // ============================================================
             var bonusWrapper = document.getElementById('bonus-tag-wrapper');
             var bonusTagText = document.getElementById('bonus-tag-text');
             var bonusDetailList = document.getElementById('bonus-detail-list');
@@ -358,42 +440,64 @@
                 bonusWrapper.style.display = 'block';
                 bonusTagText.textContent = '+¥' + learningBonus.toFixed(2) + ' 学习加薪';
 
-                // 填充明细
                 var detailHtml = '';
                 completedGoals.forEach(function(g) {
                     detailHtml += '<div class="flex justify-between items-center py-1 border-b border-surface-variant/20 last:border-0">' +
                         '<span class="text-on-surface">' + g.skillName + '</span>' +
-                        '<span class="text-tertiary-fixed-dim font-medium">+¥' + g.bonus.toFixed(2) + '/h</span>' +
+                        '<span class="text-tertiary-fixed-dim font-medium">+¥' + g.bonus.toFixed(2) +
+                        '/h</span>' +
                         '</div>';
                 });
                 bonusDetailList.innerHTML = detailHtml;
                 bonusDetailTotal.textContent = '+¥' + learningBonus.toFixed(2);
 
-                // 点击切换弹出
                 tagBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     popup.classList.toggle('show');
                 });
-
-                // 点击其他地方关闭
                 document.addEventListener('click', function() {
                     popup.classList.remove('show');
                 });
-                // 阻止弹窗内部点击冒泡关闭
                 popup.addEventListener('click', function(e) {
                     e.stopPropagation();
                 });
-
             } else {
                 bonusWrapper.style.display = 'none';
             }
 
-            // ===== 时薪显示 =====
-            // 实际时薪 = 原始时薪（不含学习加薪）
+            // ============================================================
+            // 4. 🆕 更新引导卡片
+            // ============================================================
+            var guideBonusCount = document.getElementById('guide-bonus-count');
+            var guideTitle = document.getElementById('guide-title');
+            var guideDesc = document.getElementById('guide-desc');
+            var guideBadge = document.getElementById('guide-badge');
+
+            if (learningBonus > 0) {
+                guideTitle.textContent = '📈 继续学习，涨更多薪！';
+                guideDesc.textContent = '已获得 +' + learningBonus.toFixed(2) + ' 元/小时学习加薪，继续加油！';
+                guideBadge.textContent = '继续学习 →';
+            } else {
+                guideTitle.textContent = '📈 想让自己更值钱？';
+                guideDesc.textContent = '学习新技能，给自己加薪！';
+                guideBadge.textContent = '去学习 →';
+            }
+            guideBonusCount.textContent = learningBonus.toFixed(2);
+
+            // 点击引导卡片跳转到学习页面
+            document.getElementById('learn-guide-btn').addEventListener('click', function() {
+                window.location.href = 'learn.html';
+            });
+
+            // ============================================================
+            // 5. 时薪显示
+            // ============================================================
             var hourlyWage = baseHourlyWage;
             document.getElementById('hourly-wage-display').textContent = '¥' + hourlyWage.toFixed(2);
 
-            // ===== 计算每日支出 =====
+            // ============================================================
+            // 6. 计算
+            // ============================================================
             var workStart = data && data.workStart ? data.workStart : '09:00';
             var workEnd = data && data.workEnd ? data.workEnd : '18:00';
             var lunchBreak = data && data.lunchBreak ? data.lunchBreak : 1.5;
@@ -409,7 +513,9 @@
 
             var dailyExpense = monthlyExpenses / workDays;
 
-            // ===== DOM 引用 =====
+            // ============================================================
+            // 7. DOM 引用
+            // ============================================================
             var heroCounter = document.getElementById('hero-counter');
             var todayExpenseEl = document.getElementById('today-expense');
             var netValueEl = document.getElementById('net-value');
@@ -477,6 +583,24 @@
 
             update();
             setInterval(update, 1000);
+
+            // ============================================================
+            // 8. 动画
+            // ============================================================
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            var style = document.createElement('style');
+            style.textContent =
+                '.animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }';
+            document.head.appendChild(style);
 
         });
     </script>
