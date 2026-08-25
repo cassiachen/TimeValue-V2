@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+    <title>学习加薪 - 时值 TimeValue</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-container": "#e0dfe4",
+                        "surface-bright": "#f9f9fb",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#77767b",
+                        "inverse-surface": "#2f3132",
+                        "secondary-fixed": "#e3e2e7",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-surface-variant": "#46464a",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "secondary": "#5e5e63",
+                        "outline-variant": "#c7c6ca",
+                        "on-secondary-container": "#626267",
+                        "on-secondary-fixed": "#1a1b1f",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#c8c6c8",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e2e2e4",
+                        "surface-container": "#eeeef0",
+                        "error": "#ba1a1a",
+                        "primary": "#030304",
+                        "on-primary-fixed": "#1b1b1d",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c8c6c8",
+                        "tertiary-container": "#002315",
+                        "surface-tint": "#5f5e60",
+                        "on-tertiary-container": "#009869",
+                        "background": "#f9f9fb",
+                        "secondary-fixed-dim": "#c7c6cb",
+                        "primary-fixed": "#e4e2e4",
+                        "on-primary-fixed-variant": "#474649",
+                        "on-primary": "#ffffff",
+                        "on-background": "#1a1c1d",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#002113",
+                        "surface-container-high": "#e8e8ea",
+                        "surface-container-highest": "#e2e2e4",
+                        "inverse-on-surface": "#f0f0f2",
+                        "surface": "#f9f9fb",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1a1c1d",
+                        "on-secondary-fixed-variant": "#46464b",
+                        "tertiary": "#000502",
+                        "primary-container": "#1d1d1f",
+                        "on-primary-container": "#868587",
+                        "surface-container-low": "#f3f3f5",
+                        "surface-dim": "#d9dadc"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "stack-md": "16px",
+                        "unit": "4px",
+                        "stack-sm": "8px",
+                        "margin-page": "24px",
+                        "stack-lg": "32px",
+                        "gutter-card": "16px"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "30px", "fontWeight": "600" }],
+                        "label-sm": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+        }
+        .pt-safe {
+            padding-top: env(safe-area-inset-top, 24px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        .timer-running {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .completed-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 999px;
+            padding: 2px 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg text-body-lg min-h-screen antialiased flex flex-col">
+    <!-- TopAppBar -->
+    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-page h-14 bg-surface text-primary pt-safe">
+        <button class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-surface-container transition-colors active:scale-95 duration-200" onclick="window.location.href='wage.html'">
+            <span class="material-symbols-outlined text-primary text-[24px]">arrow_back</span>
+        </button>
+        <h1 class="font-headline-md text-headline-md-mobile md:text-headline-md font-bold tracking-tight text-primary absolute left-1/2 -translate-x-1/2">
+            学习加薪
+        </h1>
+        <div class="w-10"></div>
+    </header>
+
+    <main class="flex-1 px-margin-page pt-28 pb-32 flex flex-col gap-stack-lg max-w-md mx-auto w-full">
+        <!-- 加薪总额展示 -->
+        <section class="bg-surface-container-low rounded-2xl p-5 flex flex-col items-center animate-fade-in-up">
+            <span class="font-label-sm text-label-sm text-on-surface-variant">累计学习加薪</span>
+            <div class="flex items-baseline gap-1 mt-1">
+                <span class="font-display-lg text-display-lg text-tertiary-fixed-dim" id="total-bonus-display">+¥0.00</span>
+                <span class="font-body-md text-body-md text-on-surface-variant">/ 小时</span>
+            </div>
+            <p class="font-label-sm text-label-sm text-on-surface-variant opacity-60 mt-1">完成学习目标即可获得加薪 🎓</p>
+        </section>
+
+        <!-- 学习目标列表 -->
+        <section class="flex flex-col gap-stack-md animate-fade-in-up" style="animation-delay:0.1s;">
+            <div class="flex items-center justify-between">
+                <h3 class="font-headline-md-mobile text-headline-md-mobile text-primary">我的学习目标</h3>
+                <button class="text-primary/70 hover:text-primary transition-colors text-sm flex items-center gap-1" id="btn-add-goal">
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                    新建
+                </button>
+            </div>
+            <div class="flex flex-col gap-stack-md w-full" id="goals-container">
+                <!-- 由 JavaScript 动态渲染 -->
+            </div>
+        </section>
+
+        <!-- 计时器区域 -->
+        <section class="bg-surface-container-low rounded-2xl p-5 flex flex-col items-center gap-4 animate-fade-in-up" style="animation-delay:0.2s;">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-on-surface-variant">timer</span>
+                <span class="font-label-sm text-label-sm text-on-surface-variant">今日学习计时</span>
+            </div>
+            <div class="font-display-lg text-display-lg text-primary tabular-nums" id="timer-display">00:00:00</div>
+            <div class="flex gap-4">
+                <button class="w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-transform shadow-md" id="timer-start-btn">
+                    <span class="material-symbols-outlined text-[28px]">play_arrow</span>
+                </button>
+                <button class="w-14 h-14 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center active:scale-95 transition-transform" id="timer-reset-btn">
+                    <span class="material-symbols-outlined text-[28px]">replay</span>
+                </button>
+            </div>
+            <div class="w-full mt-2">
+                <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">选择要记录时长的目标</label>
+                <select class="w-full bg-surface-container-lowest border-0 rounded-xl px-4 py-3 font-body-md text-body-md text-primary focus:ring-0 outline-none" id="timer-goal-select">
+                    <option value="">-- 请先创建目标 --</option>
+                </select>
+            </div>
+        </section>
+    </main>
+
+    <!-- BottomNavBar -->
+    <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-page py-4 pb-safe bg-surface/95 backdrop-blur-md shadow-[0_-10px_30px_rgba(0,0,0,0.04)] rounded-t-xl">
+        <button class="flex flex-col items-center justify-center text-outline transition-transform duration-300 ease-out hover:text-primary active:scale-95" onclick="window.location.href='wage.html'">
+            <span class="material-symbols-outlined text-[24px] mb-1">payments</span>
+            <span class="font-label-sm text-label-sm">工资</span>
+        </button>
+        <button class="flex flex-col items-center justify-center text-outline transition-transform duration-300 ease-out hover:text-primary active:scale-95" onclick="window.location.href='time.html'">
+            <span class="material-symbols-outlined text-[24px] mb-1">schedule</span>
+            <span class="font-label-sm text-label-sm">时间</span>
+        </button>
+        <button class="flex flex-col items-center justify-center text-primary font-bold transition-transform duration-300 ease-out scale-[1.02]" onclick="window.location.href='learn.html'">
+            <span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings:'FILL'1;">school</span>
+            <span class="font-label-sm text-label-sm">学习</span>
+        </button>
+        <button class="flex flex-col items-center justify-center text-outline transition-transform duration-300 ease-out hover:text-primary active:scale-95" onclick="window.location.href='life.html'">
+            <span class="material-symbols-outlined text-[24px] mb-1">auto_awesome</span>
+            <span class="font-label-sm text-label-sm">人生</span>
+        </button>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ============================================================
+            // 1. 数据管理
+            // ============================================================
+
+            // 学习目标数据结构：
+            // { id: 唯一ID, skillName: "Python", targetHours: 20, completedHours: 0, bonus: 5, isCompleted: false }
+
+            function loadGoals() {
+                var stored = localStorage.getItem('learningGoals');
+                if (stored) {
+                    try {
+                        var parsed = JSON.parse(stored);
+                        if (Array.isArray(parsed)) return parsed;
+                    } catch (e) {}
+                }
+                // 默认示例目标
+                var defaults = [
+                    { id: Date.now() + 1, skillName: 'Python 编程', targetHours: 20, completedHours: 0, bonus: 5, isCompleted: false },
+                    { id: Date.now() + 2, skillName: '英语口语', targetHours: 15, completedHours: 0, bonus: 3, isCompleted: false }
+                ];
+                saveGoals(defaults);
+                return defaults;
+            }
+
+            function saveGoals(goals) {
+                localStorage.setItem('learningGoals', JSON.stringify(goals));
+            }
+
+            var goals = loadGoals();
+
+            // 学习加薪总额（独立存储，不覆盖用户原始薪资）
+            function loadTotalBonus() {
+                var stored = localStorage.getItem('learningTotalBonus');
+                if (stored) {
+                    try {
+                        return parseFloat(stored) || 0;
+                    } catch (e) {}
+                }
+                return 0;
+            }
+
+            function saveTotalBonus(bonus) {
+                localStorage.setItem('learningTotalBonus', String(bonus));
+            }
+
+            var totalBonus = loadTotalBonus();
+
+            // 重新计算总加薪（遍历所有已完成的目标）
+            function recalcTotalBonus() {
+                var sum = 0;
+                goals.forEach(function(g) {
+                    if (g.isCompleted) sum += g.bonus;
+                });
+                totalBonus = sum;
+                saveTotalBonus(totalBonus);
+                return totalBonus;
+            }
+
+            // ============================================================
+            // 2. 计时器逻辑
+            // ============================================================
+
+            var timerSeconds = 0;
+            var timerInterval = null;
+            var isTimerRunning = false;
+
+            var timerDisplay = document.getElementById('timer-display');
+            var startBtn = document.getElementById('timer-start-btn');
+            var resetBtn = document.getElementById('timer-reset-btn');
+            var goalSelect = document.getElementById('timer-goal-select');
+
+            function formatTime(sec) {
+                var h = String(Math.floor(sec / 3600)).padStart(2, '0');
+                var m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+                var s = String(sec % 60).padStart(2, '0');
+                return h + ':' + m + ':' + s;
+            }
+
+            function updateTimerDisplay() {
+                timerDisplay.textContent = formatTime(timerSeconds);
+            }
+
+            function startTimer() {
+                if (isTimerRunning) return;
+                isTimerRunning = true;
+                startBtn.innerHTML = '<span class="material-symbols-outlined text-[28px]">pause</span>';
+                startBtn.classList.add('timer-running');
+                timerInterval = setInterval(function() {
+                    timerSeconds++;
+                    updateTimerDisplay();
+                }, 1000);
+            }
+
+            function pauseTimer() {
+                if (!isTimerRunning) return;
+                isTimerRunning = false;
+                startBtn.innerHTML = '<span class="material-symbols-outlined text-[28px]">play_arrow</span>';
+                startBtn.classList.remove('timer-running');
+                clearInterval(timerInterval);
+            }
+
+            function resetTimer() {
+                pauseTimer();
+                timerSeconds = 0;
+                updateTimerDisplay();
+                startBtn.innerHTML = '<span class="material-symbols-outlined text-[28px]">play_arrow</span>';
+                startBtn.classList.remove('timer-running');
+            }
+
+            // 保存学习时长到目标
+            function saveTimerToGoal() {
+                if (timerSeconds === 0) {
+                    alert('今天还没有学习呢，先学一会儿吧！');
+                    return;
+                }
+
+                var selectedIndex = goalSelect.value;
+                if (selectedIndex === '') {
+                    alert('请先选择一个学习目标');
+                    return;
+                }
+
+                var idx = parseInt(selectedIndex, 10);
+                var goal = goals[idx];
+                if (!goal) return;
+
+                if (goal.isCompleted) {
+                    alert('🎉 这个目标已经完成啦！请选择其他目标或创建新目标。');
+                    return;
+                }
+
+                var hoursToAdd = timerSeconds / 3600;
+                goal.completedHours = Math.round((goal.completedHours + hoursToAdd) * 100) / 100;
+
+                // 检查是否达成目标
+                if (goal.completedHours >= goal.targetHours) {
+                    goal.isCompleted = true;
+                    goal.completedHours = goal.targetHours; // 精确对齐
+                    // 重新计算总加薪
+                    recalcTotalBonus();
+                    alert('🎉 恭喜你完成「' + goal.skillName + '」学习目标！\n时薪 +' + goal.bonus + ' 元！');
+                }
+
+                saveGoals(goals);
+                renderGoals();
+                updateTotalBonusDisplay();
+
+                // 重置计时器
+                resetTimer();
+
+                // 更新下拉列表
+                populateGoalSelect();
+            }
+
+            // ============================================================
+            // 3. 渲染学习目标列表
+            // ============================================================
+
+            function renderGoals() {
+                var container = document.getElementById('goals-container');
+                if (!container) return;
+
+                if (goals.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-on-surface-variant opacity-60">
+                            <span class="material-symbols-outlined text-[48px] block mx-auto mb-3">school</span>
+                            <p class="font-body-md text-body-md">还没有学习目标</p>
+                            <p class="font-label-sm text-label-sm">点击右上角「新建」添加</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                var html = '';
+                goals.forEach(function(goal, index) {
+                    var progress = Math.min(100, (goal.completedHours / goal.targetHours) * 100);
+                    var statusText = goal.isCompleted ? '已完成' : '学习中';
+                    var statusClass = goal.isCompleted ? 'completed-badge' : 'bg-surface-variant text-on-surface-variant';
+
+                    html += `
+                        <div class="bg-surface-container-lowest rounded-xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col gap-3 animate-fade-in-up">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-body-lg text-body-lg text-primary font-medium">${goal.skillName}</h4>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="font-label-sm text-label-sm text-on-surface-variant">目标 ${goal.targetHours}h</span>
+                                        <span class="font-label-sm text-label-sm text-on-surface-variant">·</span>
+                                        <span class="font-label-sm text-label-sm text-on-tertiary-container">已学 ${goal.completedHours}h</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="${statusClass} px-3 py-0.5 text-xs rounded-full">${statusText}</span>
+                                    ${goal.isCompleted ? `<span class="font-label-sm text-label-sm text-tertiary-fixed-dim font-bold">+${goal.bonus}元/时</span>` : ''}
+                                    <button class="delete-goal-btn text-on-surface-variant hover:text-error transition-colors p-1" data-index="${index}" aria-label="删除">
+                                        <span class="material-symbols-outlined text-[18px]">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="h-[3px] w-full bg-surface-container-high overflow-hidden rounded-full">
+                                <div class="h-full ${goal.isCompleted ? 'bg-tertiary-fixed-dim' : 'bg-on-tertiary-container'} transition-all duration-700 ease-out" style="width:${progress}%"></div>
+                            </div>
+                            ${goal.isCompleted ? `<p class="font-label-sm text-label-sm text-tertiary-fixed-dim">✅ 已获得 +${goal.bonus} 元/小时 加薪！</p>` : ''}
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            }
+
+            // ============================================================
+            // 4. 更新总加薪显示
+            // ============================================================
+
+            function updateTotalBonusDisplay() {
+                recalcTotalBonus();
+                document.getElementById('total-bonus-display').textContent = '+¥' + totalBonus.toFixed(2);
+            }
+            updateTotalBonusDisplay();
+
+            // ============================================================
+            // 5. 填充下拉选择器
+            // ============================================================
+
+            function populateGoalSelect() {
+                var select = document.getElementById('timer-goal-select');
+                select.innerHTML = '';
+                var hasAvailable = false;
+                goals.forEach(function(goal, index) {
+                    if (!goal.isCompleted) {
+                        var option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = goal.skillName + '（' + goal.completedHours + '/' + goal.targetHours + 'h）';
+                        select.appendChild(option);
+                        hasAvailable = true;
+                    }
+                });
+                if (!hasAvailable) {
+                    var placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = '🎉 所有目标已完成！';
+                    select.appendChild(placeholder);
+                }
+            }
+
+            // ============================================================
+            // 6. 操作函数：添加 / 删除目标
+            // ============================================================
+
+            function addGoal(skillName, targetHours, bonus) {
+                var newGoal = {
+                    id: Date.now(),
+                    skillName: skillName.trim(),
+                    targetHours: targetHours,
+                    completedHours: 0,
+                    bonus: bonus,
+                    isCompleted: false
+                };
+                goals.push(newGoal);
+                saveGoals(goals);
+                renderGoals();
+                populateGoalSelect();
+            }
+
+            function deleteGoal(index) {
+                if (index < 0 || index >= goals.length) return;
+                var goal = goals[index];
+                if (goal.isCompleted) {
+                    // 如果已完成的被删除，需要从总加薪中减去
+                    if (!confirm('该目标已完成，删除后将失去 +' + goal.bonus + ' 元/小时的加薪，确定吗？')) return;
+                } else {
+                    if (!confirm('确定要删除「' + goal.skillName + '」吗？')) return;
+                }
+                goals.splice(index, 1);
+                saveGoals(goals);
+                recalcTotalBonus();
+                updateTotalBonusDisplay();
+                renderGoals();
+                populateGoalSelect();
+            }
+
+            // ============================================================
+            // 7. 事件绑定
+            // ============================================================
+
+            // 计时器控制
+            startBtn.addEventListener('click', function() {
+                if (isTimerRunning) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            });
+
+            resetBtn.addEventListener('click', function() {
+                if (timerSeconds > 0 && isTimerRunning) {
+                    if (!confirm('确定要重置计时器吗？当前学习记录将丢失。')) return;
+                }
+                resetTimer();
+            });
+
+            // 长按重置按钮保存学习时长（或通过"保存"按钮实现）
+            // 我们使用一个轻触逻辑：停止计时时自动询问是否保存
+            // 但更清晰的方式：用"保存"按钮，但为了交互简洁，我们暂停时弹出提示
+            // 改为：点击暂停时，如果 timerSeconds > 0，询问是否保存
+            var originalPause = pauseTimer;
+            pauseTimer = function() {
+                if (isTimerRunning && timerSeconds > 0) {
+                    var shouldSave = confirm('⏱️ 已学习 ' + formatTime(timerSeconds) + '\n要保存到目标吗？');
+                    if (shouldSave) {
+                        saveTimerToGoal();
+                    } else {
+                        // 不保存，直接暂停
+                        isTimerRunning = false;
+                        startBtn.innerHTML = '<span class="material-symbols-outlined text-[28px]">play_arrow</span>';
+                        startBtn.classList.remove('timer-running');
+                        clearInterval(timerInterval);
+                    }
+                } else {
+                    isTimerRunning = false;
+                    startBtn.innerHTML = '<span class="material-symbols-outlined text-[28px]">play_arrow</span>';
+                    startBtn.classList.remove('timer-running');
+                    clearInterval(timerInterval);
+                }
+            };
+
+            // 覆盖 startBtn 的点击逻辑
+            startBtn.removeEventListener('click', null);
+            startBtn.addEventListener('click', function() {
+                if (isTimerRunning) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            });
+
+            // 添加目标
+            document.getElementById('btn-add-goal').addEventListener('click', function() {
+                var skill = prompt('请输入要学习的技能名称（如：Python 编程）:');
+                if (!skill || skill.trim() === '') return;
+
+                var hoursStr = prompt('请输入目标学习时长（小时）:');
+                if (!hoursStr) return;
+                var hours = parseFloat(hoursStr);
+                if (isNaN(hours) || hours <= 0) {
+                    alert('请输入有效的小时数');
+                    return;
+                }
+
+                var bonusStr = prompt('达成目标后，时薪增加多少元？（如：5）:');
+                if (!bonusStr) return;
+                var bonus = parseFloat(bonusStr);
+                if (isNaN(bonus) || bonus <= 0) {
+                    alert('请输入有效的加薪金额');
+                    return;
+                }
+
+                addGoal(skill.trim(), hours, bonus);
+                alert('✅ 学习目标已创建！\n' + skill.trim() + ' | ' + hours + 'h | +' + bonus + '元/时');
+            });
+
+            // 删除目标（事件委托）
+            document.getElementById('goals-container').addEventListener('click', function(e) {
+                var deleteBtn = e.target.closest('.delete-goal-btn');
+                if (deleteBtn) {
+                    var index = parseInt(deleteBtn.dataset.index, 10);
+                    if (!isNaN(index)) deleteGoal(index);
+                }
+            });
+
+            // ============================================================
+            // 8. 首次渲染 & 跨页面同步
+            // ============================================================
+
+            renderGoals();
+            populateGoalSelect();
+            updateTimerDisplay();
+
+            // 页面可见性变化时刷新（其他页面可能修改了数据）
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    var freshGoals = loadGoals();
+                    var changed = false;
+                    if (freshGoals.length !== goals.length) changed = true;
+                    else {
+                        for (var i = 0; i < freshGoals.length; i++) {
+                            if (freshGoals[i].completedHours !== goals[i].completedHours ||
+                                freshGoals[i].isCompleted !== goals[i].isCompleted) {
+                                changed = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (changed) {
+                        goals = freshGoals;
+                        recalcTotalBonus();
+                        updateTotalBonusDisplay();
+                        renderGoals();
+                        populateGoalSelect();
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
