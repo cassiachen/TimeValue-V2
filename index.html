@@ -121,12 +121,22 @@
                 transform: translateY(0);
             }
         }
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+        }
+        .pt-safe {
+            padding-top: env(safe-area-inset-top, 24px);
+        }
     </style>
 </head>
 <body class="bg-surface-container-lowest text-on-surface h-screen w-full flex flex-col items-center justify-between overflow-hidden antialiased">
+
+    <!-- 顶部占位 -->
     <div class="w-full flex-none h-16 pt-safe px-margin-page"></div>
 
+    <!-- 主内容 -->
     <main class="flex-1 w-full max-w-md mx-auto flex flex-col items-center justify-center px-margin-page">
+
         <!-- Logo -->
         <div class="mb-stack-lg fade-in-up">
             <div class="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.04)] bg-surface flex items-center justify-center">
@@ -140,10 +150,10 @@
                 时值 TimeValue
             </h1>
             <h2 class="font-headline-md text-headline-md text-on-surface fade-in-up delay-200">
-                看见收入，也看见时间。
+                看见时间，也看见价值。
             </h2>
             <p class="font-body-md text-body-md text-on-surface-variant max-w-[280px] fade-in-up delay-300">
-                实时查看你的工资，了解你的时间价值。
+                今日工资 · 学习涨薪 · 时间消费 · 人生剩余
             </p>
         </div>
     </main>
@@ -158,21 +168,16 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('start-btn').addEventListener('click', function() {
-                // 检查是否有保存的数据
                 var data = localStorage.getItem('timeValueData');
                 if (data) {
                     try {
                         var parsed = JSON.parse(data);
-                        // 检查是否包含必要字段
                         if (parsed.monthlySalary && parsed.workDays) {
                             window.location.href = 'wage.html';
                             return;
                         }
-                    } catch (e) {
-                        // 数据损坏，重新设置
-                    }
+                    } catch (e) {}
                 }
-                // 无数据或数据不完整 → 跳转设置页
                 window.location.href = 'settings.html';
             });
         });
