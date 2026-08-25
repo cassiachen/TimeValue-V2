@@ -131,6 +131,39 @@
             padding: 2px 10px;
             font-size: 12px;
         }
+
+        /* 明细弹窗 */
+        .bonus-detail-popup {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            min-width: 200px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: translateY(-8px) scale(0.95);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+        }
+        .bonus-detail-popup.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        .bonus-detail-popup::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            transform: rotate(45deg);
+            border-radius: 2px;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background font-body-lg text-body-lg min-h-screen antialiased flex flex-col">
@@ -146,29 +179,34 @@
     </header>
 
     <main class="flex-1 px-margin-page pt-28 pb-32 flex flex-col gap-stack-lg max-w-md mx-auto w-full">
-        <!-- 时薪显示 -->
-        <section class="flex flex-col gap-stack-sm animate-fade-in-up">
+        <!-- 时薪显示（含学习加薪右上角标签） -->
+        <section class="relative flex flex-col gap-stack-sm animate-fade-in-up">
             <h2 class="font-body-md text-body-md text-on-surface-variant uppercase tracking-wider">你的时间价值</h2>
             <div class="flex items-baseline gap-2">
                 <span class="font-display-lg text-display-lg text-primary" id="hourly-wage-display">¥0.00</span>
                 <span class="font-body-md text-body-md text-on-surface-variant">/ 小时</span>
             </div>
             <div class="h-[1px] w-12 bg-primary/10 mt-2"></div>
-        </section>
 
-        <!-- 本月消费统计 -->
-        <section class="bg-surface-container-low rounded-2xl p-4 flex justify-between items-center animate-fade-in-up">
-            <div>
-                <span class="font-label-sm text-label-sm text-on-surface-variant">本月已消费</span>
-                <div class="flex items-baseline gap-2">
-                    <span class="font-headline-md text-headline-md text-primary" id="monthly-spending">¥0</span>
-                    <span class="font-label-sm text-label-sm text-on-surface-variant">（<span id="purchase-count">0</span> 件）</span>
+            <!-- 学习加薪标签（右上角小字） -->
+            <div class="absolute top-0 right-0" id="bonus-tag-wrapper" style="display:none;">
+                <button class="flex items-center gap-1 text-xs text-tertiary-fixed-dim hover:text-tertiary-fixed-dim/70 transition-colors font-medium px-2 py-1 rounded-full bg-tertiary-fixed/10" id="bonus-tag-btn">
+                    <span class="material-symbols-outlined text-[14px]">school</span>
+                    <span id="bonus-tag-text">+¥0.00 学习加薪</span>
+                    <span class="material-symbols-outlined text-[12px]">expand_more</span>
+                </button>
+                <!-- 明细弹窗 -->
+                <div class="bonus-detail-popup" id="bonus-detail-popup">
+                    <div class="font-label-sm text-label-sm text-on-surface-variant mb-2">🎓 学习加薪明细</div>
+                    <div id="bonus-detail-list" class="flex flex-col gap-1.5 text-sm">
+                        <div class="text-on-surface-variant/60 text-xs">暂无已完成的目标</div>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-surface-variant/30 flex justify-between text-xs">
+                        <span class="text-on-surface-variant">累计加薪</span>
+                        <span class="font-bold text-tertiary-fixed-dim" id="bonus-detail-total">+¥0.00</span>
+                    </div>
                 </div>
             </div>
-            <button class="text-on-surface-variant hover:text-error transition-colors text-sm flex items-center gap-1" id="clear-purchases">
-                <span class="material-symbols-outlined text-[18px]">delete</span>
-                清空记录
-            </button>
         </section>
 
         <!-- 人生价格表 -->
@@ -181,7 +219,6 @@
                 <!-- 由 JavaScript 动态渲染 -->
             </div>
 
-            <!-- 添加按钮 -->
             <button class="w-full flex items-center justify-center p-6 border border-dashed border-outline-variant rounded-xl bg-transparent hover:bg-surface-container-low text-on-surface-variant transition-colors active:scale-[0.98] duration-200 mt-2 gap-2" id="btn-add-item">
                 <span class="material-symbols-outlined">add</span>
                 <span class="font-body-md text-body-md">添加新目标</span>
@@ -199,6 +236,10 @@
             <span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings:'FILL'1;">schedule</span>
             <span class="font-label-sm text-label-sm">时间</span>
         </button>
+        <button class="flex flex-col items-center justify-center text-outline transition-transform duration-300 ease-out hover:text-primary active:scale-95" onclick="window.location.href='learn.html'">
+            <span class="material-symbols-outlined text-[24px] mb-1">school</span>
+            <span class="font-label-sm text-label-sm">学习</span>
+        </button>
         <button class="flex flex-col items-center justify-center text-outline transition-transform duration-300 ease-out hover:text-primary active:scale-95" onclick="window.location.href='life.html'">
             <span class="material-symbols-outlined text-[24px] mb-1">auto_awesome</span>
             <span class="font-label-sm text-label-sm">人生</span>
@@ -209,7 +250,7 @@
         document.addEventListener('DOMContentLoaded', function() {
 
             // ============================================================
-            // 1. 读取用户薪资数据
+            // 1. 读取用户薪资数据（实际工资）
             // ============================================================
             var userData = null;
             var saved = localStorage.getItem('timeValueData');
@@ -229,7 +270,61 @@
             document.getElementById('hourly-wage-display').textContent = '¥' + hourlyWage.toFixed(2);
 
             // ============================================================
-            // 2. 物品数据管理
+            // 2. 学习加薪（假想，只展示）
+            // ============================================================
+            var learningBonus = 0;
+            var completedGoals = [];
+            var bonusStored = localStorage.getItem('learningTotalBonus');
+            if (bonusStored) {
+                try {
+                    learningBonus = parseFloat(bonusStored) || 0;
+                } catch (e) {}
+            }
+            var goalsStored = localStorage.getItem('learningGoals');
+            if (goalsStored) {
+                try {
+                    var allGoals = JSON.parse(goalsStored);
+                    completedGoals = allGoals.filter(function(g) { return g.isCompleted === true; });
+                } catch (e) {}
+            }
+
+            var bonusWrapper = document.getElementById('bonus-tag-wrapper');
+            var bonusTagText = document.getElementById('bonus-tag-text');
+            var bonusDetailList = document.getElementById('bonus-detail-list');
+            var bonusDetailTotal = document.getElementById('bonus-detail-total');
+            var popup = document.getElementById('bonus-detail-popup');
+            var tagBtn = document.getElementById('bonus-tag-btn');
+
+            if (learningBonus > 0 && completedGoals.length > 0) {
+                bonusWrapper.style.display = 'block';
+                bonusTagText.textContent = '+¥' + learningBonus.toFixed(2) + ' 学习加薪';
+
+                var detailHtml = '';
+                completedGoals.forEach(function(g) {
+                    detailHtml += '<div class="flex justify-between items-center py-1 border-b border-surface-variant/20 last:border-0">' +
+                        '<span class="text-on-surface">' + g.skillName + '</span>' +
+                        '<span class="text-tertiary-fixed-dim font-medium">+¥' + g.bonus.toFixed(2) + '/h</span>' +
+                        '</div>';
+                });
+                bonusDetailList.innerHTML = detailHtml;
+                bonusDetailTotal.textContent = '+¥' + learningBonus.toFixed(2);
+
+                tagBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    popup.classList.toggle('show');
+                });
+                document.addEventListener('click', function() {
+                    popup.classList.remove('show');
+                });
+                popup.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            } else {
+                bonusWrapper.style.display = 'none';
+            }
+
+            // ============================================================
+            // 3. 物品数据管理
             // ============================================================
 
             var defaultItems = [
@@ -246,9 +341,7 @@
                 if (stored) {
                     try {
                         var parsed = JSON.parse(stored);
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            return parsed;
-                        }
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                     } catch (e) {}
                 }
                 saveItems(defaultItems);
@@ -262,7 +355,7 @@
             var items = loadItems();
 
             // ============================================================
-            // 3. 消费记录管理
+            // 4. 消费记录
             // ============================================================
 
             var purchaseKey = 'purchaseHistory';
@@ -270,9 +363,7 @@
             function loadPurchases() {
                 var stored = localStorage.getItem(purchaseKey);
                 if (stored) {
-                    try {
-                        return JSON.parse(stored);
-                    } catch (e) {}
+                    try { return JSON.parse(stored); } catch (e) {}
                 }
                 return [];
             }
@@ -285,22 +376,12 @@
 
             function updateSpendingStats() {
                 var total = purchases.reduce(function(sum, p) { return sum + p.price; }, 0);
-                document.getElementById('monthly-spending').textContent = '¥' + total.toFixed(2);
-                document.getElementById('purchase-count').textContent = purchases.length;
+                // 如果有顶部统计，这里可以更新，但 time.html 没有，留空
             }
             updateSpendingStats();
 
-            document.getElementById('clear-purchases').addEventListener('click', function() {
-                if (confirm('确定要清空所有购买记录吗？')) {
-                    purchases = [];
-                    savePurchases(purchases);
-                    updateSpendingStats();
-                    renderItems();
-                }
-            });
-
             // ============================================================
-            // 4. 渲染函数（核心：只显示工时 + 购买按钮）
+            // 5. 渲染
             // ============================================================
 
             function renderItems() {
@@ -321,7 +402,6 @@
                 items.forEach(function(item, index) {
                     var hours = item.price / hourlyWage;
                     var days = hours / workHoursPerDay;
-
                     var isPurchased = purchases.some(function(p) {
                         return p.itemName === item.name && p.price === item.price;
                     });
@@ -341,9 +421,7 @@
                                     </button>
                                 </div>
                             </div>
-
                             <div class="bg-surface-bright rounded-lg p-4 flex flex-col gap-2 border border-surface-variant/50">
-                                <!-- 只用时间说话 -->
                                 <div class="flex items-baseline gap-2">
                                     <span class="font-body-md text-body-md text-on-surface-variant">需要工作</span>
                                     <span class="font-headline-md-mobile text-headline-md-mobile text-primary tracking-tight req-hours">${Math.ceil(hours)}</span>
@@ -353,8 +431,6 @@
                                     <span class="material-symbols-outlined text-[14px]">calendar_today</span>
                                     约 <span class="req-days">${Math.ceil(days)}</span> 个工作日
                                 </p>
-
-                                <!-- 购买 / 撤销按钮 -->
                                 <div class="mt-2">
                                     ${isPurchased ? `
                                         <button class="w-full text-sm py-1.5 rounded-full bg-error/10 text-error hover:bg-error/20 transition-colors flex items-center justify-center gap-1 undo-purchase-btn" data-index="${index}">
@@ -375,7 +451,7 @@
             }
 
             // ============================================================
-            // 5. 操作函数
+            // 6. 操作函数
             // ============================================================
 
             function addItem(name, price, icon) {
@@ -393,7 +469,6 @@
                 savePurchases(purchases);
                 items.splice(index, 1);
                 saveItems(items);
-                updateSpendingStats();
                 renderItems();
             }
 
@@ -401,13 +476,8 @@
                 if (index < 0 || index >= items.length) return;
                 var item = items[index];
                 var hours = item.price / hourlyWage;
-
-                // 灵魂拷问
-                var msg = '你确定要用 ' + Math.ceil(hours) + ' 小时的生命换取它吗？\n\n' +
-                          '这些时间，本可以用来陪伴家人、学习成长、好好休息……\n\n' +
-                          '三思而后行！';
+                var msg = '你确定要用 ' + Math.ceil(hours) + ' 小时的生命换取它吗？\n\n这些时间，本可以用来陪伴家人、学习成长、好好休息……\n\n三思而后行！';
                 if (!confirm(msg)) return;
-
                 var already = purchases.some(function(p) {
                     return p.itemName === item.name && p.price === item.price;
                 });
@@ -415,10 +485,8 @@
                     alert('你已经拥有它了！');
                     return;
                 }
-
                 purchases.push({ itemName: item.name, price: item.price, timestamp: Date.now() });
                 savePurchases(purchases);
-                updateSpendingStats();
                 renderItems();
                 alert('✅ 已记录购买：' + item.name + '（花费 ' + Math.ceil(hours) + ' 小时生命）');
             }
@@ -436,12 +504,11 @@
                 if (!confirm('确定要撤销 ' + item.name + ' 的购买吗？')) return;
                 purchases.splice(idx, 1);
                 savePurchases(purchases);
-                updateSpendingStats();
                 renderItems();
             }
 
             // ============================================================
-            // 6. 事件绑定
+            // 7. 事件绑定
             // ============================================================
 
             var container = document.getElementById('items-container');
@@ -484,7 +551,7 @@
             });
 
             // ============================================================
-            // 7. 首次渲染 & 薪资变化监听
+            // 8. 首次渲染 & 跨页面同步
             // ============================================================
 
             renderItems();
@@ -508,8 +575,19 @@
                             }
                         } catch (e) {}
                     }
-                    purchases = loadPurchases();
-                    updateSpendingStats();
+                    // 刷新学习加薪
+                    var freshBonus = localStorage.getItem('learningTotalBonus');
+                    if (freshBonus) {
+                        try {
+                            var newBonus = parseFloat(freshBonus) || 0;
+                            if (newBonus !== learningBonus) {
+                                learningBonus = newBonus;
+                                // 刷新标签显示
+                                // 简化：直接重新加载页面
+                                location.reload();
+                            }
+                        } catch (e) {}
+                    }
                 }
             });
 
