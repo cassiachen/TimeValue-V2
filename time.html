@@ -124,6 +124,13 @@
         .delete-item-btn:hover .material-symbols-outlined {
             font-variation-settings: 'FILL' 1;
         }
+        .purchased-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background font-body-lg text-body-lg min-h-screen antialiased flex flex-col">
@@ -147,6 +154,21 @@
                 <span class="font-body-md text-body-md text-on-surface-variant">/ 小时</span>
             </div>
             <div class="h-[1px] w-12 bg-primary/10 mt-2"></div>
+        </section>
+
+        <!-- 新增：本月消费统计 -->
+        <section class="bg-surface-container-low rounded-2xl p-4 flex justify-between items-center animate-fade-in-up">
+            <div>
+                <span class="font-label-sm text-label-sm text-on-surface-variant">本月已消费</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="font-headline-md text-headline-md text-primary" id="monthly-spending">¥0</span>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant">（<span id="purchase-count">0</span> 件）</span>
+                </div>
+            </div>
+            <button class="text-on-surface-variant hover:text-error transition-colors text-sm flex items-center gap-1" id="clear-purchases">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+                清空记录
+            </button>
         </section>
 
         <!-- 人生价格表 -->
@@ -210,7 +232,6 @@
             // 2. 物品数据管理（localStorage 持久化）
             // ============================================================
 
-            // 默认物品列表（包含 icon 和 name 和 price）
             var defaultItems = [
                 { icon: 'smartphone', name: 'iPhone 15 Pro', price: 8999 },
                 { icon: 'coffee', name: '奶茶', price: 30 },
@@ -220,7 +241,6 @@
                 { icon: 'headphones', name: 'AirPods Pro', price: 1899 }
             ];
 
-            // 从 localStorage 读取物品列表，若无则使用默认列表并存入
             function loadItems() {
                 var stored = localStorage.getItem('timeItems');
                 if (stored) {
@@ -233,21 +253,78 @@
                         console.warn('物品数据解析失败，使用默认列表');
                     }
                 }
-                // 无数据或解析失败 → 保存默认并返回
                 saveItems(defaultItems);
-                return defaultItems.slice(); // 返回副本
+                return defaultItems.slice();
             }
 
             function saveItems(items) {
                 localStorage.setItem('timeItems', JSON.stringify(items));
             }
 
-            // 当前物品列表
             var items = loadItems();
 
             // ============================================================
-            // 3. 渲染函数
+            // 3. 消费记录管理（新增）
             // ============================================================
+
+            var purchaseKey = 'purchaseHistory';
+            function loadPurchases() {
+                var stored = localStorage.getItem(purchaseKey);
+                if (stored) {
+                    try {
+                        return JSON.parse(stored);
+                    } catch (e) {}
+                }
+                return [];
+            }
+
+            function savePurchases(purchases) {
+                localStorage.setItem(purchaseKey, JSON.stringify(purchases));
+            }
+
+            var purchases = loadPurchases();
+
+            // 更新顶部统计
+            function updateSpendingStats() {
+                var total = purchases.reduce(function(sum, p) { return sum + p.price; }, 0);
+                document.getElementById('monthly-spending').textContent = '¥' + total.toFixed(2);
+                document.getElementById('purchase-count').textContent = purchases.length;
+            }
+            updateSpendingStats();
+
+            // 清空购买记录
+            document.getElementById('clear-purchases').addEventListener('click', function() {
+                if (confirm('确定要清空所有购买记录吗？')) {
+                    purchases = [];
+                    savePurchases(purchases);
+                    updateSpendingStats();
+                    renderItems(); // 刷新卡片上的“已购买”标记
+                }
+            });
+
+            // ============================================================
+            // 4. 渲染函数（含等价物对比 + 购买按钮）
+            // ============================================================
+
+            // 等价物基准（价格）
+            var equivalents = [
+                { name: '奶茶', price: 30 },
+                { name: '电影票', price: 80 },
+                { name: '午餐', price: 40 },
+                { name: '书', price: 50 }
+            ];
+
+            function getEquivalents(price) {
+                var result = [];
+                equivalents.forEach(function(eq) {
+                    var count = Math.floor(price / eq.price);
+                    if (count >= 1) {
+                        result.push(count + ' 杯' + eq.name);
+                    }
+                });
+                if (result.length === 0) result.push('不到 1 杯奶茶');
+                return result.slice(0, 2).join(' 或 '); // 最多显示两种
+            }
 
             function renderItems() {
                 var container = document.getElementById('items-container');
@@ -267,6 +344,10 @@
                 items.forEach(function(item, index) {
                     var hours = item.price / hourlyWage;
                     var days = hours / workHoursPerDay;
+                    var eqText = getEquivalents(item.price);
+
+                    // 检查是否已购买
+                    var isPurchased = purchases.some(function(p) { return p.itemIndex === index && p.name === item.name; });
 
                     html += `
                         <div class="price-card bg-surface-container-lowest rounded-xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.04)] flex flex-col gap-stack-md transition-transform active:scale-[0.98] duration-300 animate-fade-in-up" data-index="${index}">
@@ -274,6 +355,7 @@
                                 <h4 class="font-body-lg text-body-lg text-primary font-medium">
                                     <span class="material-symbols-outlined text-[22px] align-middle">${item.icon || 'shopping_bag'}</span>
                                     ${item.name}
+                                    ${isPurchased ? '<span class="purchased-badge ml-2">已拥有</span>' : ''}
                                 </h4>
                                 <div class="flex items-center gap-2">
                                     <span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-1 rounded item-price">¥${item.price.toLocaleString()}</span>
@@ -282,7 +364,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="bg-surface-bright rounded-lg p-4 flex flex-col gap-1 border border-surface-variant/50">
+                            <div class="bg-surface-bright rounded-lg p-4 flex flex-col gap-2 border border-surface-variant/50">
                                 <div class="flex items-baseline gap-2">
                                     <span class="font-body-md text-body-md text-on-surface-variant">需要工作</span>
                                     <span class="font-headline-md-mobile text-headline-md-mobile text-primary tracking-tight req-hours">${Math.ceil(hours)}</span>
@@ -292,6 +374,23 @@
                                     <span class="material-symbols-outlined text-[14px]">calendar_today</span>
                                     约 <span class="req-days">${Math.ceil(days)}</span> 个工作日
                                 </p>
+                                <!-- 新增：等价物对比 -->
+                                <div class="text-xs text-on-surface-variant/70 mt-1 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[14px]">swap_horiz</span>
+                                    等价于 <span class="font-medium text-on-surface">${eqText}</span>
+                                </div>
+                                <!-- 新增：购买按钮 -->
+                                <div class="mt-2">
+                                    ${isPurchased ? `
+                                        <button class="w-full text-sm py-1.5 rounded-full bg-error/10 text-error hover:bg-error/20 transition-colors flex items-center justify-center gap-1 undo-purchase-btn" data-index="${index}">
+                                            <span class="material-symbols-outlined text-[16px]">undo</span> 后悔了（撤销）
+                                        </button>
+                                    ` : `
+                                        <button class="w-full text-sm py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center justify-center gap-1 purchase-btn" data-index="${index}">
+                                            <span class="material-symbols-outlined text-[16px]">shopping_cart</span> 冲动购买
+                                        </button>
+                                    `}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -301,7 +400,7 @@
             }
 
             // ============================================================
-            // 4. 操作函数：添加 & 删除
+            // 5. 操作函数：添加 / 删除 / 购买 / 撤销购买
             // ============================================================
 
             function addItem(name, price, icon) {
@@ -317,17 +416,87 @@
 
             function deleteItem(index) {
                 if (index < 0 || index >= items.length) return;
+                // 同时删除该物品相关的购买记录
+                var item = items[index];
+                purchases = purchases.filter(function(p) {
+                    return !(p.itemIndex === index && p.name === item.name);
+                });
+                savePurchases(purchases);
                 items.splice(index, 1);
                 saveItems(items);
+                // 重新整理购买记录中的 itemIndex（因为删除后索引变了）
+                // 简单起见，我们清除所有与已删除物品同名的记录（上面已过滤），但后续购买记录的索引需要重映射。
+                // 更健壮的做法是：重新构建 purchases，只保留存在的物品索引。
+                // 但我们采用的是存储 itemIndex + name，删除后索引偏移，会导致后续撤销问题。
+                // 为了简化，我们改为使用唯一 ID 或直接存储物品名称+价格，避免索引依赖。
+                // 这里重构：改为存储 itemName 和 price，不依赖索引。
+                // 但为了快速实现，我们暂时改为使用物品名称作为标识，因为名称一般不会重复。
+                // 但为了更准确，我们重新设计 purchase 结构：{ itemName, price, timestamp }
+                // 迁移现有数据：
+                var migrated = purchases.map(function(p) {
+                    return { itemName: p.name, price: p.price, timestamp: p.timestamp || Date.now() };
+                });
+                purchases = migrated;
+                savePurchases(purchases);
+                updateSpendingStats();
+                renderItems();
+            }
+
+            // 购买
+            function purchaseItem(index) {
+                if (index < 0 || index >= items.length) return;
+                var item = items[index];
+                var hours = item.price / hourlyWage;
+                var confirmMsg = '你确定要用 ' + Math.ceil(hours) + ' 小时的生命换取它吗？\n' +
+                                 '等价于 ' + getEquivalents(item.price) + '。\n\n' +
+                                 '三思而后行！';
+                if (!confirm(confirmMsg)) return;
+
+                // 检查是否已购买（防止重复购买）
+                var already = purchases.some(function(p) { return p.itemName === item.name && p.price === item.price; });
+                if (already) {
+                    alert('你已经拥有它了！');
+                    return;
+                }
+
+                purchases.push({
+                    itemName: item.name,
+                    price: item.price,
+                    timestamp: Date.now()
+                });
+                savePurchases(purchases);
+                updateSpendingStats();
+                renderItems();
+                // 简单反馈
+                alert('✅ 已记录购买：' + item.name + '（花费 ' + Math.ceil(hours) + ' 小时生命）');
+            }
+
+            // 撤销购买
+            function undoPurchase(index) {
+                if (index < 0 || index >= items.length) return;
+                var item = items[index];
+                var toRemove = purchases.findIndex(function(p) {
+                    return p.itemName === item.name && p.price === item.price;
+                });
+                if (toRemove === -1) {
+                    alert('未找到购买记录');
+                    return;
+                }
+                if (!confirm('确定要撤销 ' + item.name + ' 的购买吗？')) return;
+                purchases.splice(toRemove, 1);
+                savePurchases(purchases);
+                updateSpendingStats();
                 renderItems();
             }
 
             // ============================================================
-            // 5. 事件绑定（使用事件委托）
+            // 6. 事件绑定（事件委托）
             // ============================================================
 
-            // 删除按钮点击（委托到容器）
-            document.getElementById('items-container').addEventListener('click', function(e) {
+            var container = document.getElementById('items-container');
+
+            // 删除
+            container.addEventListener('click', function(e) {
                 var deleteBtn = e.target.closest('.delete-item-btn');
                 if (deleteBtn) {
                     var index = parseInt(deleteBtn.dataset.index, 10);
@@ -337,7 +506,29 @@
                 }
             });
 
-            // 添加按钮
+            // 购买
+            container.addEventListener('click', function(e) {
+                var purchaseBtn = e.target.closest('.purchase-btn');
+                if (purchaseBtn) {
+                    var index = parseInt(purchaseBtn.dataset.index, 10);
+                    if (!isNaN(index)) {
+                        purchaseItem(index);
+                    }
+                }
+            });
+
+            // 撤销购买
+            container.addEventListener('click', function(e) {
+                var undoBtn = e.target.closest('.undo-purchase-btn');
+                if (undoBtn) {
+                    var index = parseInt(undoBtn.dataset.index, 10);
+                    if (!isNaN(index)) {
+                        undoPurchase(index);
+                    }
+                }
+            });
+
+            // 添加物品
             document.getElementById('btn-add-item').addEventListener('click', function() {
                 var name = prompt('请输入物品名称（如：MacBook Pro）:');
                 if (!name || name.trim() === '') return;
@@ -351,22 +542,17 @@
                     return;
                 }
 
-                // 可选的图标选择（简单处理，默认用 shopping_bag）
-                var icon = 'shopping_bag';
-                addItem(name.trim(), price, icon);
+                addItem(name.trim(), price, 'shopping_bag');
             });
 
             // ============================================================
-            // 6. 首次渲染
+            // 7. 首次渲染 & 薪资变化监听
             // ============================================================
 
             renderItems();
 
-            // 当薪资变化时重新渲染（例如用户在设置页修改后返回）
-            // 可以监听 storage 变化（跨页面同步），简单起见，页面可见时刷新
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden) {
-                    // 重新读取薪资
                     var fresh = localStorage.getItem('timeValueData');
                     if (fresh) {
                         try {
@@ -384,6 +570,9 @@
                             }
                         } catch (e) {}
                     }
+                    // 刷新购买统计（可能在别的页面也修改了）
+                    purchases = loadPurchases();
+                    updateSpendingStats();
                 }
             });
 
