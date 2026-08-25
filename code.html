@@ -1,275 +1,295 @@
-<!DOCTYPE html><html class="light" lang="zh-CN"><head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
-<title>时值 TimeValue - Life Timeline</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>构建你的时间基准线 - 时值 TimeValue</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "secondary-container": "#e0dfe4",
-                    "surface-bright": "#f9f9fb",
-                    "tertiary-fixed-dim": "#4edea3",
-                    "on-tertiary": "#ffffff",
-                    "outline": "#77767b",
-                    "inverse-surface": "#2f3132",
-                    "secondary-fixed": "#e3e2e7",
-                    "tertiary-fixed": "#6ffbbe",
-                    "on-surface-variant": "#46464a",
-                    "on-tertiary-fixed-variant": "#005236",
-                    "secondary": "#5e5e63",
-                    "outline-variant": "#c7c6ca",
-                    "on-secondary-container": "#626267",
-                    "on-secondary-fixed": "#1a1b1f",
-                    "surface-container-lowest": "#ffffff",
-                    "primary-fixed-dim": "#c8c6c8",
-                    "error-container": "#ffdad6",
-                    "surface-variant": "#e2e2e4",
-                    "surface-container": "#eeeef0",
-                    "error": "#ba1a1a",
-                    "primary": "#030304",
-                    "on-primary-fixed": "#1b1b1d",
-                    "on-error-container": "#93000a",
-                    "inverse-primary": "#c8c6c8",
-                    "tertiary-container": "#002315",
-                    "surface-tint": "#5f5e60",
-                    "on-tertiary-container": "#009869",
-                    "background": "#f9f9fb",
-                    "secondary-fixed-dim": "#c7c6cb",
-                    "primary-fixed": "#e4e2e4",
-                    "on-primary-fixed-variant": "#474649",
-                    "on-primary": "#ffffff",
-                    "on-background": "#1a1c1d",
-                    "on-error": "#ffffff",
-                    "on-tertiary-fixed": "#002113",
-                    "surface-container-high": "#e8e8ea",
-                    "surface-container-highest": "#e2e2e4",
-                    "inverse-on-surface": "#f0f0f2",
-                    "surface": "#f9f9fb",
-                    "on-secondary": "#ffffff",
-                    "on-surface": "#1a1c1d",
-                    "on-secondary-fixed-variant": "#46464b",
-                    "tertiary": "#000502",
-                    "primary-container": "#1d1d1f",
-                    "on-primary-container": "#868587",
-                    "surface-container-low": "#f3f3f5",
-                    "surface-dim": "#d9dadc"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-            },
-            "spacing": {
-                    "stack-md": "16px",
-                    "unit": "4px",
-                    "stack-sm": "8px",
-                    "margin-page": "24px",
-                    "stack-lg": "32px",
-                    "gutter-card": "16px"
-            },
-            "fontFamily": {
-                    "body-lg": ["Inter"],
-                    "headline-lg": ["Inter"],
-                    "headline-md": ["Inter"],
-                    "label-sm": ["Inter"],
-                    "display-lg": ["Inter"],
-                    "body-md": ["Inter"],
-                    "headline-lg-mobile": ["Inter"]
-            },
-            "fontSize": {
-                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                    "headline-md": ["24px", {"lineHeight": "30px", "fontWeight": "600"}],
-                    "label-sm": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
-                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#e0dfe4",
+                        "surface-bright": "#f9f9fb",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#77767b",
+                        "inverse-surface": "#2f3132",
+                        "secondary-fixed": "#e3e2e7",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-surface-variant": "#46464a",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "secondary": "#5e5e63",
+                        "outline-variant": "#c7c6ca",
+                        "on-secondary-container": "#626267",
+                        "on-secondary-fixed": "#1a1b1f",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#c8c6c8",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e2e2e4",
+                        "surface-container": "#eeeef0",
+                        "error": "#ba1a1a",
+                        "primary": "#030304",
+                        "on-primary-fixed": "#1b1b1d",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c8c6c8",
+                        "tertiary-container": "#002315",
+                        "surface-tint": "#5f5e60",
+                        "on-tertiary-container": "#009869",
+                        "background": "#f9f9fb",
+                        "secondary-fixed-dim": "#c7c6cb",
+                        "primary-fixed": "#e4e2e4",
+                        "on-primary-fixed-variant": "#474649",
+                        "on-primary": "#ffffff",
+                        "on-background": "#1a1c1d",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#002113",
+                        "surface-container-high": "#e8e8ea",
+                        "surface-container-highest": "#e2e2e4",
+                        "inverse-on-surface": "#f0f0f2",
+                        "surface": "#f9f9fb",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1a1c1d",
+                        "on-secondary-fixed-variant": "#46464b",
+                        "tertiary": "#000502",
+                        "primary-container": "#1d1d1f",
+                        "on-primary-container": "#868587",
+                        "surface-container-low": "#f3f3f5",
+                        "surface-dim": "#d9dadc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "unit": "4px",
+                        "stack-sm": "8px",
+                        "margin-page": "24px",
+                        "stack-lg": "32px",
+                        "gutter-card": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "30px", "fontWeight": "600" }],
+                        "label-sm": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
             }
-          }
         }
-      }
     </script>
 <style>
-        body {
-            -webkit-tap-highlight-color: transparent;
+        body { -webkit-tap-highlight-color: transparent; }
+        /* Hide scrollbar for clean aesthetic */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Custom Input Underline Animation */
+        .input-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: theme('colors.primary');
+            transition: width 0.3s ease;
         }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-        .filled-icon {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        /* Hide scrollbar for cleaner look */
-        ::-webkit-scrollbar {
-            display: none;
-        }
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom, 20px);
-        }
-        .pt-safe {
-            padding-top: env(safe-area-inset-top, 0px);
+        .input-wrapper:focus-within::after {
+            width: 100%;
         }
     </style>
 </head>
-<body class="bg-background text-on-background min-h-screen antialiased flex flex-col pt-safe">
-<!-- TopAppBar -->
-<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-page h-14 bg-surface pt-safe">
-<button aria-label="Menu" class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-200 p-2 -ml-2">
+<body class="bg-surface-container-lowest text-on-surface antialiased min-h-screen">
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-page h-14 bg-surface-container-lowest flat no shadows">
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-200">
 <span class="material-symbols-outlined" data-icon="menu">menu</span>
 </button>
-<h1 class="font-headline-md text-headline-md-mobile md:text-headline-md font-bold tracking-tight text-primary">时值 TimeValue</h1>
-<div class="w-10"></div> <!-- Balancer for centering -->
+<div class="font-headline-md text-headline-md-mobile font-bold tracking-tight text-primary">
+            时值 TimeValue
+        </div>
+<div class="w-6"></div> <!-- Spacer for centering -->
 </header>
 <!-- Main Content Canvas -->
-<main class="flex-1 w-full max-w-2xl mx-auto pt-24 pb-32 px-margin-page flex flex-col gap-stack-lg relative z-0">
-<!-- Hero Section -->
-<section class="flex flex-col gap-unit mt-stack-md">
-<h2 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">人生余额 (天)</h2>
-<div class="font-display-lg text-display-lg text-primary tabular-nums tracking-tight animate-fade-in-up" id="life-balance-days">
-                --
-            </div>
-<p class="font-body-md text-body-md text-on-surface-variant opacity-70 mt-2" id="expected-life-text">
-                基于 80 岁预期寿命
+<!-- Navigation Shell Suppressed: This is an onboarding/setup screen (Linear/Transactional intent). -->
+<main class="pt-[80px] pb-[120px] px-margin-page max-w-md mx-auto">
+<!-- Header -->
+<div class="mb-stack-lg">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary tracking-tight">
+                构建你的时间基准线
+            </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-stack-sm">
+                通过量化你的基础投入，计算出你时间的真实价值。
             </p>
+</div>
+<!-- Form: Basic Info -->
+<section class="flex flex-col gap-stack-md mb-stack-lg">
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+                    月薪 (Monthly Salary)
+                </label>
+<div class="flex items-center">
+<span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="monthlySalary" placeholder="0.00" type="number"/>
+</div>
+</div>
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                    每月工作天数 (Work days per month)
+                </label>
+<div class="flex items-center">
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="workDays" placeholder="22" type="number"/>
+<span class="font-body-lg text-body-lg text-on-surface-variant ml-2">天</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-gutter-card">
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        上班时间
+                    </label>
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors outline-none" id="workStart" type="time" value="09:00"/>
+</div>
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        下班时间
+                    </label>
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors outline-none" id="workEnd" type="time" value="18:00"/>
+</div>
+</div>
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                    午休时间 (Lunch break)
+                </label>
+<div class="flex items-center">
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="lunchBreak" placeholder="1.5" step="0.5" type="number"/>
+<span class="font-body-lg text-body-lg text-on-surface-variant ml-2">小时</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-gutter-card">
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        当前年龄 (Current Age)
+                    </label>
+<div class="flex items-center">
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="currentAge" placeholder="25" type="number"/>
+<span class="font-body-lg text-body-lg text-on-surface-variant ml-2">岁</span>
+</div>
+</div>
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        预期寿命 (Expected Life)
+                    </label>
+<div class="flex items-center">
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="expectedLife" type="number" value="80"/>
+<span class="font-body-lg text-body-lg text-on-surface-variant ml-2">岁</span>
+</div>
+</div>
+</div>
 </section>
-<!-- Timeline Progress Series -->
-<section class="flex flex-col gap-6 mt-stack-lg w-full">
-<!-- Progress Item: Today -->
-<div class="flex flex-col gap-3 group">
-<div class="flex justify-between items-end">
-<span class="font-label-sm text-label-sm text-primary">今日</span>
-<span class="font-body-md text-body-md text-on-surface-variant tabular-nums" id="today-percent">--%</span>
-</div>
-<div class="h-[3px] w-full bg-surface-container-high overflow-hidden">
-<div class="h-full bg-on-tertiary-container w-[0%] transition-all duration-1000 ease-out origin-left" id="today-bar"></div>
-</div>
-</div>
-<!-- Progress Item: Month -->
-<div class="flex flex-col gap-3 group">
-<div class="flex justify-between items-end">
-<span class="font-label-sm text-label-sm text-primary">本月</span>
-<span class="font-body-md text-body-md text-on-surface-variant tabular-nums" id="month-percent">--%</span>
-</div>
-<div class="h-[3px] w-full bg-surface-container-high overflow-hidden">
-<div class="h-full bg-on-tertiary-container w-[0%] transition-all duration-1000 ease-out origin-left delay-100" id="month-bar"></div>
+<!-- Section: Fixed Expenses -->
+<section class="mt-stack-lg">
+<h2 class="font-headline-md text-headline-md text-primary mb-stack-md flex items-center gap-2">
+                固定支出
+            </h2>
+<div class="flex flex-col gap-stack-md">
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="home">home</span> 房租/房贷 (Rent)
+                    </label>
+<div class="flex items-center">
+<span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="rentExpense" placeholder="0.00" type="number"/>
 </div>
 </div>
-<!-- Progress Item: Year -->
-<div class="flex flex-col gap-3 group">
-<div class="flex justify-between items-end">
-<span class="font-label-sm text-label-sm text-primary">今年</span>
-<span class="font-body-md text-body-md text-on-surface-variant tabular-nums" id="year-percent">--%</span>
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="directions_subway">directions_subway</span> 通勤 (Commute)
+                    </label>
+<div class="flex items-center">
+<span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="commuteExpense" placeholder="0.00" type="number"/>
 </div>
-<div class="h-[3px] w-full bg-surface-container-high overflow-hidden">
-<div class="h-full bg-on-tertiary-container w-[0%] transition-all duration-1000 ease-out origin-left delay-200" id="year-bar"></div>
 </div>
+<div class="relative group input-wrapper pb-unit">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="restaurant">restaurant</span> 三餐 (Meals)
+                    </label>
+<div class="flex items-center">
+<span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+<input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="mealsExpense" placeholder="0.00" type="number"/>
 </div>
-<!-- Progress Item: Life -->
-<div class="flex flex-col gap-3 group mt-4">
-<div class="flex justify-between items-end">
-<span class="font-label-sm text-label-sm text-primary">人生</span>
-<span class="font-body-md text-body-md text-on-surface-variant tabular-nums" id="life-percent">--%</span>
-</div>
-<div class="h-[3px] w-full bg-surface-container-high overflow-hidden">
-<div class="h-full bg-on-tertiary-container w-[0%] transition-all duration-1000 ease-out origin-left delay-300" id="life-bar"></div>
 </div>
 </div>
 </section>
+<!-- Primary Action Button -->
+<div class="fixed bottom-0 left-0 w-full p-margin-page pb-10 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest to-transparent md:relative md:p-0 md:mt-stack-lg md:bg-none z-10">
+<button class="w-full h-[52px] bg-primary text-on-primary font-body-md text-body-md rounded-[16px] flex items-center justify-center font-medium shadow-[0_10px_30px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-transform duration-200" id="saveBtn">
+                开始计算
+                <span class="material-symbols-outlined ml-2 text-[20px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
 </main>
-<!-- BottomNavBar -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-page py-4 pb-safe bg-surface/95 backdrop-blur-md shadow-[0_-10px_30px_rgba(0,0,0,0.04)] rounded-t-xl md:hidden">
-<!-- Inactive Tab 1 -->
-<button aria-label="工资" class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='salary.html'">
-<span class="material-symbols-outlined" data-icon="payments">payments</span>
-<span class="font-label-sm text-label-sm">工资</span>
-</button>
-<!-- Inactive Tab 2 -->
-<button aria-label="时间" class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='time.html'">
-<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
-<span class="font-label-sm text-label-sm">时间</span>
-</button>
-<!-- Active Tab 3 -->
-<button aria-label="人生" class="flex flex-col items-center justify-center text-primary font-bold scale-105 transition-transform duration-300 ease-out w-16 gap-1" onclick="window.location.href='life.html'">
-<span class="material-symbols-outlined filled-icon" data-icon="auto_awesome" data-weight="fill">auto_awesome</span>
-<span class="font-label-sm text-label-sm">人生</span>
-</button>
-</nav>
-<style>
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .animate-fade-in-up {
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-    </style>
 <script>
-    function updateProgress() {
-        // 1. Data Input
-        const currentAge = parseFloat(localStorage.getItem('currentAge')) || 23; // Default 23 if not set
-        const expectedLife = parseFloat(localStorage.getItem('expectedLife')) || 80;
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load existing data if available
+        const existingData = localStorage.getItem('timeValueData');
+        if (existingData) {
+            try {
+                const data = JSON.parse(existingData);
+                document.getElementById('monthlySalary').value = data.monthlySalary || '';
+                document.getElementById('workDays').value = data.workDays || '22';
+                document.getElementById('workStart').value = data.workStart || '09:00';
+                document.getElementById('workEnd').value = data.workEnd || '18:00';
+                document.getElementById('lunchBreak').value = data.lunchBreak || '1.5';
+                document.getElementById('currentAge').value = data.currentAge || '';
+                document.getElementById('expectedLife').value = data.expectedLife || '80';
+                document.getElementById('rentExpense').value = data.rentExpense || '';
+                document.getElementById('commuteExpense').value = data.commuteExpense || '';
+                document.getElementById('mealsExpense').value = data.mealsExpense || '';
+            } catch (e) {
+                console.error("Error parsing saved data", e);
+            }
+        }
 
-        // 2. Calculations
-        const now = new Date();
-        
-        // Today
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const todayPassed = now - startOfDay;
-        const todayTotal = 24 * 60 * 60 * 1000;
-        const todayPercent = (todayPassed / todayTotal) * 100;
-
-        // Month
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-        const monthPassed = now - startOfMonth;
-        const monthTotal = nextMonth - startOfMonth;
-        const monthPercent = (monthPassed / monthTotal) * 100;
-
-        // Year
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
-        const nextYear = new Date(now.getFullYear() + 1, 0, 1);
-        const yearPassed = now - startOfYear;
-        const yearTotal = nextYear - startOfYear;
-        const yearPercent = (yearPassed / yearTotal) * 100;
-
-        // Life
-        const lifePercent = (currentAge / expectedLife) * 100;
-        const remainingDays = Math.max(0, (expectedLife - currentAge) * 365);
-
-        // 3. Update DOM
-        document.getElementById('life-balance-days').textContent = Math.floor(remainingDays).toLocaleString();
-        document.getElementById('expected-life-text').textContent = `基于 ${expectedLife} 岁预期寿命`;
-
-        document.getElementById('today-percent').textContent = todayPercent.toFixed(1) + '%';
-        document.getElementById('today-bar').style.width = todayPercent + '%';
-
-        document.getElementById('month-percent').textContent = monthPercent.toFixed(1) + '%';
-        document.getElementById('month-bar').style.width = monthPercent + '%';
-
-        document.getElementById('year-percent').textContent = yearPercent.toFixed(1) + '%';
-        document.getElementById('year-bar').style.width = yearPercent + '%';
-
-        document.getElementById('life-percent').textContent = lifePercent.toFixed(1) + '%';
-        document.getElementById('life-bar').style.width = lifePercent + '%';
-    }
-
-    // Initialize and run periodically
-    updateProgress();
-    setInterval(updateProgress, 60000); // Update every minute
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const data = {
+                monthlySalary: document.getElementById('monthlySalary').value,
+                workDays: document.getElementById('workDays').value,
+                workStart: document.getElementById('workStart').value,
+                workEnd: document.getElementById('workEnd').value,
+                lunchBreak: document.getElementById('lunchBreak').value,
+                currentAge: document.getElementById('currentAge').value,
+                expectedLife: document.getElementById('expectedLife').value,
+                rentExpense: document.getElementById('rentExpense').value,
+                commuteExpense: document.getElementById('commuteExpense').value,
+                mealsExpense: document.getElementById('mealsExpense').value
+            };
+            
+            localStorage.setItem('timeValueData', JSON.stringify(data));
+            
+            // Redirect to Wage screen (assuming wage.html or similar in standard setup)
+            // Using a generic hash or placeholder redirect as specific file isn't defined
+            window.location.href = 'wage.html'; 
+        });
+    });
 </script>
-
-
 </body></html>
