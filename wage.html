@@ -475,7 +475,7 @@
             );
 
             if (!floatWin || floatWin.closed || typeof floatWin.closed === 'undefined') {
-                alert('⚠️ 浏览器拦截了悬浮窗，请允许弹出窗口后重试。\n或按住 Ctrl 键点击按钮。');
+                await showAlert('⚠️ 提示', '浏览器拦截了悬浮窗，请允许弹出窗口后重试。\n或按住 Ctrl 键点击按钮。');
             } else {
                 floatWin.focus();
             }
