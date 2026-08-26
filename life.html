@@ -378,6 +378,11 @@
 
     </nav>
 
+    <!-- ===== 品牌水印 ===== -->
+    <div class="text-center py-2 pb-safe">
+        <span class="text-[11px] text-outline/40 tracking-[0.15em] font-light select-none">Made by Cassia</span>
+    </div>
+
     <!-- ===== 里程碑详情弹窗 ===== -->
     <div class="modal-overlay" id="milestone-modal">
         <div class="modal-content">
@@ -516,9 +521,9 @@
 
                 container.innerHTML = html;
 
-                // 点击格子标记里程碑
+                // 点击格子标记里程碑（🆕 使用 showPrompt）
                 container.querySelectorAll('.week-cell').forEach(function(cell) {
-                    cell.addEventListener('click', function() {
+                    cell.addEventListener('click', async function() {
                         var week = parseInt(this.dataset.week);
                         var age = parseFloat(this.dataset.age);
                         var existing = milestones.find(function(m) { return m.weekIndex === week; });
@@ -529,10 +534,8 @@
                             return;
                         }
 
-                        // 不能标记未来的格子（除非是当前周之后，但允许标记未来里程碑）
-                        // 但为了体验，允许标记任何格子
-                        var name = prompt('为这个时间点起个名字（如：大学毕业、结婚）\n年龄：' + age.toFixed(1) + ' 岁');
-                        if (!name || name.trim() === '') return;
+                        var name = await showPrompt('标记里程碑', '为这个时间点起个名字', '如：大学毕业');
+                        if (name === null || name.trim() === '') return;
 
                         var newMilestone = {
                             id: Date.now(),
@@ -602,12 +605,12 @@
 
                 container.innerHTML = html;
 
-                // 删除里程碑
+                // 删除里程碑（🆕 使用 showConfirm）
                 container.querySelectorAll('.delete-milestone-btn').forEach(function(btn) {
-                    btn.addEventListener('click', function(e) {
+                    btn.addEventListener('click', async function(e) {
                         e.stopPropagation();
                         var id = parseInt(this.dataset.id);
-                        if (!confirm('确定要删除这个里程碑吗？')) return;
+                        if (!await showConfirm('删除确认', '确定要删除这个里程碑吗？')) return;
                         milestones = milestones.filter(function(m) { return m.id !== id; });
                         saveMilestones();
                         renderMilestones();
@@ -659,9 +662,10 @@
             modalCloseBtn.addEventListener('click', function() {
                 modal.classList.remove('show');
             });
-            modalDeleteBtn.addEventListener('click', function() {
+            // 🆕 模态框删除按钮使用 showConfirm
+            modalDeleteBtn.addEventListener('click', async function() {
                 if (!currentModalMilestoneId) return;
-                if (!confirm('确定要删除这个里程碑吗？')) return;
+                if (!await showConfirm('删除确认', '确定要删除这个里程碑吗？')) return;
                 milestones = milestones.filter(function(m) { return m.id !== currentModalMilestoneId; });
                 saveMilestones();
                 renderMilestones();
