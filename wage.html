@@ -108,13 +108,15 @@
         }
 
         @keyframes subtle-pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.3;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        @keyframes arrow-bounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(4px); }
+        }
+        .animate-arrow {
+            animation: arrow-bounce 1.2s ease-in-out infinite;
         }
         .animate-realtime {
             animation: subtle-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -125,50 +127,26 @@
         }
 
         @keyframes big-number-pop {
-            0% {
-                transform: scale(1);
-                color: #030304;
-            }
-            30% {
-                transform: scale(1.06);
-                color: #009869;
-            }
-            60% {
-                transform: scale(0.97);
-                color: #030304;
-            }
-            100% {
-                transform: scale(1);
-                color: #030304;
-            }
+            0% { transform: scale(1); color: #030304; }
+            30% { transform: scale(1.06); color: #009869; }
+            60% { transform: scale(0.97); color: #030304; }
+            100% { transform: scale(1); color: #030304; }
         }
         .number-pop {
             animation: big-number-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes roll-up {
-            from {
-                transform: translateY(10px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         .roll-in {
             animation: roll-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-up {
             animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -181,7 +159,6 @@
             padding-top: env(safe-area-inset-top, 24px);
         }
 
-        /* 🆕 状态标签 */
         .status-tag {
             font-size: 11px;
             padding: 2px 12px;
@@ -204,24 +181,23 @@
             color: #e65100;
         }
 
-        /* 🆕 打卡徽章 */
+        /* 打卡徽章（显示在指示器位置） */
         .streak-badge {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 12px 2px 8px;
-            border-radius: 999px;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            box-shadow: 0 2px 12px rgba(255, 69, 0, 0.25);
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ff4500;
         }
         .streak-badge .material-symbols-outlined {
-            font-size: 14px;
+            font-size: 18px;
+        }
+        .streak-badge .count {
+            font-size: 15px;
+            font-weight: 700;
         }
 
-        /* 🆕 学习加薪小标签（时薪右上角） */
         .bonus-chip {
             display: inline-flex;
             align-items: center;
@@ -243,7 +219,6 @@
             font-size: 12px;
         }
 
-        /* 🆕 学习加薪弹窗 */
         .bonus-detail-popup {
             position: absolute;
             bottom: calc(100% + 6px);
@@ -276,7 +251,6 @@
             border-radius: 2px;
         }
 
-        /* 🆕 周报月报切换按钮 */
         .report-tab {
             font-size: 13px;
             font-weight: 500;
@@ -313,24 +287,15 @@
             pointer-events: none;
         }
         @keyframes ring-pulse {
-            0% {
-                transform: translate(-50%, -50%) scale(0.8);
-                opacity: 0.8;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(1.3);
-                opacity: 0;
-            }
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
         }
 
-        /* 顶部布局 */
         .top-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            flex-wrap: wrap;
-            gap: 6px;
         }
     </style>
 </head>
@@ -351,47 +316,42 @@
     <main class="flex-1 px-margin-page flex flex-col gap-4 mt-6 max-w-md mx-auto w-full">
 
         <!-- ============================================================
-        顶部：今日已赚 + 状态 + 打卡
+        顶部：今日已赚 + 状态标签（两个元素）
         ============================================================ -->
         <section class="flex flex-col items-center pt-2">
             <div class="top-row">
                 <span class="text-on-surface-variant font-label-sm text-label-sm tracking-widest">今日已赚</span>
                 <span class="status-tag working" id="status-tag">⏳ 工作中</span>
-                <span class="streak-badge" id="streak-badge">
-                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1;">local_fire_department</span>
-                    <span id="streak-count">0</span> 天
-                </span>
             </div>
             <div class="flex items-baseline gap-1 mt-1 roll-in">
                 <span class="font-headline-md text-headline-md text-primary translate-y-[-6px]">¥</span>
                 <h2 class="font-display-lg text-display-lg text-primary tracking-tighter" id="hero-counter" style="font-size:72px;line-height:1.05;">0.00</h2>
             </div>
-            <div class="mt-1 flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low text-on-tertiary-container font-label-sm text-label-sm">
-                <span class="material-symbols-outlined text-[14px] animate-realtime" id="live-indicator" style="font-variation-settings:'FILL'1;">arrow_upward</span>
-                <span id="live-label">实时增长中</span>
+            <!-- 🆕 指示器：绿色箭头 + 连续天数 -->
+            <div class="mt-1 flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-low text-on-tertiary-container font-label-sm text-label-sm">
+                <span class="material-symbols-outlined text-[18px] text-tertiary-fixed-dim animate-arrow" style="font-variation-settings:'FILL'1;">trending_up</span>
+                <span class="streak-badge">
+                    🔥 连续 <span class="count" id="streak-count">0</span> 天
+                </span>
             </div>
         </section>
 
         <!-- ============================================================
-        昨日收入 + 时薪（学习加薪在时薪右上角）
+        昨日收入 + 时薪
         ============================================================ -->
         <section class="grid grid-cols-2 gap-3">
-            <!-- 昨日收入 -->
             <div class="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center">
                 <span class="text-on-surface-variant font-label-sm text-label-sm">昨日收入</span>
                 <span class="font-headline-md text-headline-md text-primary font-medium mt-0.5" id="yesterday-earnings">¥0.00</span>
             </div>
-            <!-- 时薪 + 学习加薪右上角 -->
             <div class="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center relative">
                 <span class="text-on-surface-variant font-label-sm text-label-sm">时薪</span>
                 <span class="font-headline-md text-headline-md text-primary font-medium mt-0.5" id="hourly-wage-display">¥0.00</span>
-                <!-- 🆕 学习加薪小标签（右上角） -->
                 <div id="bonus-tag-wrapper" style="display:none;" class="absolute top-2 right-2">
                     <span class="bonus-chip" id="bonus-tag-btn">
                         <span class="material-symbols-outlined">school</span>
                         <span id="bonus-tag-text">+¥0.00</span>
                     </span>
-                    <!-- 弹窗 -->
                     <div class="bonus-detail-popup" id="bonus-detail-popup">
                         <div class="font-label-sm text-label-sm text-on-surface-variant mb-2 text-center">🎓 学习加薪明细</div>
                         <div id="bonus-detail-list" class="flex flex-col gap-1.5 text-sm">
@@ -462,10 +422,9 @@
         </section>
 
         <!-- ============================================================
-        🆕 周报 / 月报
+        🆕 周报 / 月报（去掉人生剩余）
         ============================================================ -->
         <section class="bg-surface-container-low rounded-2xl p-5 flex flex-col gap-4 mt-2">
-            <!-- 标题 + 切换 -->
             <div class="flex items-center justify-between">
                 <span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
                     <span class="material-symbols-outlined text-[18px]">calendar_month</span>
@@ -477,8 +436,8 @@
                 </div>
             </div>
 
-            <!-- 数据卡片 -->
-            <div class="grid grid-cols-3 gap-2" id="report-grid">
+            <!-- 5 项数据（去掉人生剩余） -->
+            <div class="grid grid-cols-5 gap-2" id="report-grid">
                 <div class="bg-surface-container-lowest rounded-xl p-3 text-center">
                     <div class="text-on-surface-variant/50 text-[10px] font-medium uppercase tracking-wider">总收入</div>
                     <div class="font-headline-md text-headline-md text-primary font-bold mt-0.5" id="report-income">¥0</div>
@@ -494,10 +453,6 @@
                 <div class="bg-surface-container-lowest rounded-xl p-3 text-center">
                     <div class="text-on-surface-variant/50 text-[10px] font-medium uppercase tracking-wider">打卡</div>
                     <div class="font-headline-md text-headline-md text-primary font-bold mt-0.5" id="report-streak">0天</div>
-                </div>
-                <div class="bg-surface-container-lowest rounded-xl p-3 text-center">
-                    <div class="text-on-surface-variant/50 text-[10px] font-medium uppercase tracking-wider">人生剩余</div>
-                    <div class="font-headline-md text-headline-md text-primary font-bold mt-0.5" id="report-life">0天</div>
                 </div>
                 <div class="bg-surface-container-lowest rounded-xl p-3 text-center">
                     <div class="text-on-surface-variant/50 text-[10px] font-medium uppercase tracking-wider">学习加薪</div>
@@ -646,7 +601,7 @@
             }
 
             // ============================================================
-            // 5. 学习加薪标签（右上角小标签 + 弹窗）
+            // 5. 学习加薪标签
             // ============================================================
             var bonusWrapper = document.getElementById('bonus-tag-wrapper');
             var bonusTagText = document.getElementById('bonus-tag-text');
@@ -758,8 +713,6 @@
             var minuteWageEl = document.getElementById('minute-wage');
             var secondWageEl = document.getElementById('second-wage');
             var statusTag = document.getElementById('status-tag');
-            var liveIndicator = document.getElementById('live-indicator');
-            var liveLabel = document.getElementById('live-label');
 
             hourlyWageDisplay.textContent = '¥' + baseHourlyWage.toFixed(2);
             hourlyWageItem.textContent = '¥' + baseHourlyWage.toFixed(2);
@@ -819,8 +772,6 @@
                     leftSeconds = 0;
                     statusTag.textContent = '🌙 已下班';
                     statusTag.className = 'status-tag off';
-                    liveIndicator.className = 'material-symbols-outlined text-[14px] off';
-                    liveLabel.textContent = '今日已结';
 
                 } else if (afterWork && !isTodayDone) {
                     workedSeconds = totalWorkSeconds;
@@ -834,8 +785,6 @@
                     isTodayDone = true;
                     statusTag.textContent = '🌙 已下班';
                     statusTag.className = 'status-tag off';
-                    liveIndicator.className = 'material-symbols-outlined text-[14px] off';
-                    liveLabel.textContent = '今日已结';
 
                 } else {
                     if (currentSeconds <= start.totalSeconds) {
@@ -863,13 +812,9 @@
                     if (currentSeconds < start.totalSeconds) {
                         statusTag.textContent = '⏳ 未开始';
                         statusTag.className = 'status-tag weekend';
-                        liveIndicator.className = 'material-symbols-outlined text-[14px] off';
-                        liveLabel.textContent = '等待开工';
                     } else {
                         statusTag.textContent = '⏳ 工作中';
                         statusTag.className = 'status-tag working';
-                        liveIndicator.className = 'material-symbols-outlined text-[14px] animate-realtime';
-                        liveLabel.textContent = '实时增长中';
                     }
                 }
 
@@ -900,7 +845,7 @@
             }, 60000);
 
             // ============================================================
-            // 🆕 7. 周报 / 月报
+            // 🆕 7. 周报 / 月报（去掉人生剩余）
             // ============================================================
 
             function getWeekRange() {
@@ -924,12 +869,6 @@
                 return { start: firstDay, end: lastDay };
             }
 
-            function formatDateKey(d) {
-                return d.getFullYear() + '-' +
-                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(d.getDate()).padStart(2, '0');
-            }
-
             function isDateInRange(dateStr, start, end) {
                 var d = new Date(dateStr + 'T00:00:00');
                 return d >= start && d <= end;
@@ -949,7 +888,7 @@
                     }
                 });
 
-                // 学习时长（累计总时长）
+                // 学习时长
                 var goals = [];
                 var goalsStored = localStorage.getItem('learningGoals');
                 if (goalsStored) {
@@ -978,19 +917,15 @@
                     }
                 });
 
-                // 打卡天数（本周/本月访问天数）
+                // 打卡天数
                 var streakData = localStorage.getItem('appStreak');
                 var streakDays = 0;
                 if (streakData) {
                     try {
                         var s = JSON.parse(streakData);
-                        // 简单计算：从 streak 中获取连续天数，如果是本周/本月内
                         streakDays = s.count || 0;
                     } catch (e) {}
                 }
-
-                // 人生剩余天数
-                var remainingDays = Math.max(0, (expectedLife - currentAge) * 365);
 
                 // 学习加薪
                 var bonus = 0;
@@ -1005,7 +940,6 @@
                     spendCount: spendCount,
                     spendTotal: spendTotal,
                     streakDays: streakDays,
-                    remainingDays: Math.round(remainingDays),
                     bonus: bonus,
                     periodLabel: period === 'week' ? '本周' : '本月'
                 };
@@ -1019,7 +953,6 @@
                 document.getElementById('report-study').textContent = Math.round(report.studyHours * 10) / 10 + 'h';
                 document.getElementById('report-spend').textContent = report.spendCount + '件';
                 document.getElementById('report-streak').textContent = report.streakDays + '天';
-                document.getElementById('report-life').textContent = report.remainingDays.toLocaleString() + '天';
                 document.getElementById('report-bonus').textContent = '+¥' + report.bonus.toFixed(1);
                 document.getElementById('report-period-label').textContent = '统计周期：' + report.periodLabel;
             }
@@ -1044,12 +977,10 @@
             // 初始化周报
             updateReport('week');
 
-            // 当数据变化时重新更新周报月报（每60秒检查一次）
             setInterval(function() {
                 updateReport(currentPeriod);
             }, 60000);
 
-            // 页面可见性变化时刷新
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden) {
                     updateReport(currentPeriod);
