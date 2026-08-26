@@ -469,7 +469,7 @@
                     summary += '\n';
                 }
 
-                // 7. 每日反思（兼容新旧两种格式）
+                // 7. 每日反思
 var reflectionsV2 = data.lifeReflectionsV2 || {};
 var reflectionsOld = data.lifeReflections || {};
 var allRefEntries = [];
@@ -508,6 +508,73 @@ if (allRefEntries.length > 0) {
     summary += '  共 ' + allRefEntries.length + ' 天有反思记录\n\n';
 }
 
+                
+// 8. 记账记录（来自时间消费页面）—— 全部记录
+var transactions = data.transactions || [];
+if (transactions.length > 0) {
+    // 计算总支出
+    var totalSpent = 0;
+    var categoryMap = {};
+    transactions.forEach(function(t) {
+        totalSpent += t.amount || 0;
+        var cat = t.category || '其他';
+        if (!categoryMap[cat]) categoryMap[cat] = 0;
+        categoryMap[cat] += t.amount || 0;
+    });
+
+    summary += '【记账记录】\n';
+    summary += '  总支出：¥' + totalSpent.toFixed(2) + '\n';
+    summary += '  总笔数：' + transactions.length + ' 笔\n';
+
+    // 分类汇总
+    if (Object.keys(categoryMap).length > 0) {
+        summary += '  分类汇总：\n';
+        var sortedCats = Object.keys(categoryMap).sort(function(a, b) {
+            return categoryMap[b] - categoryMap[a];
+        });
+        sortedCats.forEach(function(cat) {
+            var amount = categoryMap[cat];
+            var percentage = totalSpent > 0 ? (amount / totalSpent * 100).toFixed(0) : 0;
+            summary += '    - ' + cat + '：¥' + amount.toFixed(2) + '（' + percentage + '%）\n';
+        });
+    }
+
+    // 按日期分组显示全部记录（倒序：最新的在前）
+    var grouped = {};
+    transactions.forEach(function(t) {
+        var date = t.timestamp ? new Date(t.timestamp).toLocaleDateString('zh-CN') : '未知日期';
+        if (!grouped[date]) grouped[date] = [];
+        grouped[date].push(t);
+    });
+
+    // 日期倒序排列
+    var sortedDates = Object.keys(grouped).sort(function(a, b) {
+        // 将日期字符串转回时间戳比较
+        var parseDate = function(dateStr) {
+            if (dateStr === '未知日期') return 0;
+            var parts = dateStr.split('/');
+            return new Date(parts[0], parts[1] - 1, parts[2]).getTime();
+        };
+        return parseDate(b) - parseDate(a);
+    });
+
+    summary += '  全部记录（按日期分组）：\n';
+    sortedDates.forEach(function(date) {
+        var items = grouped[date];
+        // 按时间戳排序（同一天内，早的在前）
+        items.sort(function(a, b) { return (a.timestamp || 0) - (b.timestamp || 0); });
+        summary += '    ' + date + '（' + items.length + ' 笔）：\n';
+        items.forEach(function(t) {
+            var name = t.name || '未命名';
+            var amount = t.amount || 0;
+            var category = t.category || '其他';
+            var time = t.timestamp ? new Date(t.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '';
+            summary += '      - ' + time + ' ' + name + '（' + category + '）：¥' + amount.toFixed(2) + '\n';
+        });
+    });
+
+    summary += '\n';
+}
                 summary += '═══════════════════════════════════════════\n';
                 summary += '  数据备份于 ' + new Date().toLocaleString() + '\n';
                 summary += '  时值 TimeValue — 看见时间，也看见自己。\n';
