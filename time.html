@@ -811,6 +811,9 @@
                 setTimeout(function() { modalName.focus(); }, 300);
             }
 
+            // 🆕 将 openModal 挂载到全局，供 onclick 和快速记账调用
+            window.openModal = openModal;
+
             function closeModal() {
                 modal.classList.remove('show');
             }
@@ -882,4 +885,87 @@
             document.querySelectorAll('.filter-tag').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.filter-tag').forEach(function(b) { b.classList.remove('active'); });
-                    this
+                    this.classList.add('active');
+                    currentFilter = this.dataset.category;
+                    renderTransactions();
+                });
+            });
+
+            // ============================================================
+            // 9. 价格表折叠
+            // ============================================================
+            var priceListVisible = false;
+            document.getElementById('toggle-price-list').addEventListener('click', function() {
+                priceListVisible = !priceListVisible;
+                var container = document.getElementById('price-list-container');
+                var icon = this.querySelector('.material-symbols-outlined');
+                if (priceListVisible) {
+                    container.style.display = 'flex';
+                    icon.textContent = 'expand_less';
+                } else {
+                    container.style.display = 'none';
+                    icon.textContent = 'expand_more';
+                }
+            });
+
+            // 🆕 添加物品使用 showPrompt
+            document.getElementById('btn-add-item').addEventListener('click', async function() {
+                var name = await showPrompt('添加物品', '请输入物品名称', '如：MacBook Pro');
+                if (name === null || name.trim() === '') return;
+                var priceStr = await showPrompt('添加物品', '请输入物品价格', '如：12999');
+                if (priceStr === null) return;
+                var price = parseFloat(priceStr.replace(/[^\d.]/g, ''));
+                if (isNaN(price) || price <= 0) {
+                    await showAlert('提示', '请输入有效的价格');
+                    return;
+                }
+                items.push({ icon: 'shopping_bag', name: name.trim(), price: price });
+                saveItems(items);
+                renderItems();
+            });
+
+            // ============================================================
+            // 10. 快捷键
+            // ============================================================
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+                if (e.key === 'Enter' && modal.classList.contains('show')) {
+                    document.getElementById('modal-save-btn').click();
+                }
+            });
+
+            // ============================================================
+            // 11. 初始化
+            // ============================================================
+            renderAll();
+
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    var freshData = TV.storage.get('timeValueData', null);
+                    if (freshData) {
+                        try {
+                            var newSalary = freshData.monthlySalary || 10000;
+                            var newWorkDays = freshData.workDays || 22;
+                            var newWorkHours = freshData.workHoursPerDay || 8;
+                            if (newSalary !== salary || newWorkDays !== workDays || newWorkHours !== workHoursPerDay) {
+                                salary = newSalary;
+                                workDays = newWorkDays;
+                                workHoursPerDay = newWorkHours;
+                                hourlyWage = salary / (workDays * workHoursPerDay);
+                                document.getElementById('hourly-wage-display').textContent = '¥' + hourlyWage.toFixed(2);
+                                renderAll();
+                            }
+                        } catch (e) {}
+                    }
+                    var freshTxns = loadTransactions();
+                    if (freshTxns.length !== transactions.length) {
+                        transactions = freshTxns;
+                        renderAll();
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
