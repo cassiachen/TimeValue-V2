@@ -8,6 +8,7 @@
     </script>
     <script src="shared/storage.js"></script>
     <script src="shared/toast.js"></script>
+    <script src="shared/modal.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="shared/tailwind-config.js"></script>
@@ -224,6 +225,13 @@
     </nav>
 
     <!-- ============================================================
+    品牌水印
+    ============================================================ -->
+    <div class="text-center py-2 pb-safe">
+        <span class="text-[11px] text-outline/40 tracking-[0.15em] font-light select-none">Made by Cassia</span>
+    </div>
+
+    <!-- ============================================================
     JavaScript
     ============================================================ -->
     <script>
@@ -353,16 +361,17 @@
                 progressBonusWrapper.style.display = 'none';
             }
 
-            function startTimer() {
+            // 🆕 startTimer 使用 showAlert
+            async function startTimer() {
                 if (isTimerRunning) return;
                 var idx = parseInt(goalSelect.value, 10);
                 if (isNaN(idx) || idx < 0 || idx >= goals.length) {
-                    alert('请先选择一个学习目标');
+                    await showAlert('提示', '请先选择一个学习目标');
                     return;
                 }
                 var goal = goals[idx];
                 if (goal.isCompleted) {
-                    alert('🎉 这个目标已经完成啦！请选择其他目标。');
+                    await showAlert('提示', '🎉 这个目标已经完成啦！请选择其他目标。');
                     return;
                 }
 
@@ -384,7 +393,8 @@
                 }, 1000);
             }
 
-            function pauseTimer() {
+            // 🆕 pauseTimer 使用 showConfirm
+            async function pauseTimer() {
                 if (!isTimerRunning) return;
                 isTimerRunning = false;
                 timerState.isRunning = false;
@@ -397,7 +407,7 @@
                 timerInterval = null;
 
                 if (timerSeconds > 0) {
-                    var shouldSave = confirm('⏱️ 已学习 ' + formatTime(timerSeconds) + '\n要保存到目标吗？');
+                    var shouldSave = await showConfirm('保存学习', '⏱️ 已学习 ' + formatTime(timerSeconds) + '\n要保存到目标吗？');
                     if (shouldSave) {
                         saveTimerToGoal();
                     }
@@ -405,9 +415,10 @@
                 updateTimerDisplay();
             }
 
-            function resetTimer() {
+            // 🆕 resetTimer 使用 showConfirm
+            async function resetTimer() {
                 if (timerSeconds > 0 && isTimerRunning) {
-                    if (!confirm('确定要重置计时器吗？当前学习记录将丢失。')) return;
+                    if (!await showConfirm('重置确认', '确定要重置计时器吗？当前学习记录将丢失。')) return;
                 }
                 if (timerInterval) {
                     clearInterval(timerInterval);
@@ -425,9 +436,10 @@
                 updateTimerDisplay();
             }
 
-            function saveTimerToGoal() {
+            // 🆕 saveTimerToGoal 使用 showAlert
+            async function saveTimerToGoal() {
                 if (timerSeconds === 0) {
-                    alert('今天还没有学习呢，先学一会儿吧！');
+                    await showAlert('提示', '今天还没有学习呢，先学一会儿吧！');
                     return;
                 }
 
@@ -435,7 +447,7 @@
                 if (idx === null || idx < 0 || idx >= goals.length) {
                     var selectVal = goalSelect.value;
                     if (selectVal === '') {
-                        alert('请先选择一个学习目标');
+                        await showAlert('提示', '请先选择一个学习目标');
                         return;
                     }
                     idx = parseInt(selectVal, 10);
@@ -445,7 +457,7 @@
                 if (!goal) return;
 
                 if (goal.isCompleted) {
-                    alert('🎉 这个目标已经完成啦！请选择其他目标或创建新目标。');
+                    await showAlert('提示', '🎉 这个目标已经完成啦！请选择其他目标或创建新目标。');
                     return;
                 }
 
@@ -467,15 +479,15 @@
                 renderGoals();
                 populateGoalSelect();
 
-                // 显示反馈
+                // 显示反馈（🆕 使用 showAlert）
                 var progress = Math.min(100, (goal.completedHours / goal.targetHours) * 100);
                 var earnedNow = (goal.completedHours / goal.targetHours) * goal.bonus;
                 earnedNow = Math.min(earnedNow, goal.bonus);
 
                 if (goal.isCompleted && !wasCompleted) {
-                    alert('🎉 恭喜完成「' + goal.skillName + '」！\n累计获得 +' + earnedNow.toFixed(2) + ' 元/小时加薪！');
+                    await showAlert('🎉 完成', '恭喜完成「' + goal.skillName + '」！\n累计获得 +' + earnedNow.toFixed(2) + ' 元/小时加薪！');
                 } else {
-                    alert('📚 继续加油！\n' + goal.skillName + ' 已完成 ' + goal.completedHours + '/' + goal.targetHours +
+                    await showAlert('📚 加油', '继续加油！\n' + goal.skillName + ' 已完成 ' + goal.completedHours + '/' + goal.targetHours +
                         ' 小时（' + progress.toFixed(0) + '%）\n当前已获得 +' + earnedNow.toFixed(2) + ' 元/小时加薪');
                 }
 
@@ -616,7 +628,7 @@
             }
 
             // ============================================================
-            // 5. 操作函数：添加 / 删除
+            // 5. 操作函数：添加 / 删除（🆕 全部使用 showPrompt / showConfirm / showAlert）
             // ============================================================
 
             var skillRefs = [
@@ -647,13 +659,14 @@
                 populateGoalSelect();
             }
 
-            function deleteGoal(index) {
+            // 🆕 deleteGoal 使用 showConfirm
+            async function deleteGoal(index) {
                 if (index < 0 || index >= goals.length) return;
                 var goal = goals[index];
                 if (goal.isCompleted) {
-                    if (!confirm('该目标已完成，删除后将失去 +' + goal.bonus + ' 元/小时的加薪，确定吗？')) return;
+                    if (!await showConfirm('删除确认', '该目标已完成，删除后将失去 +' + goal.bonus + ' 元/小时的加薪，确定吗？')) return;
                 } else {
-                    if (!confirm('确定要删除「' + goal.skillName + '」吗？')) return;
+                    if (!await showConfirm('删除确认', '确定要删除「' + goal.skillName + '」吗？')) return;
                 }
                 if (selectedGoalIndex === index) {
                     selectedGoalIndex = null;
@@ -670,12 +683,12 @@
             }
 
             // ============================================================
-            // 6. 事件绑定
+            // 6. 事件绑定（🆕 全部使用 showPrompt / showConfirm / showAlert）
             // ============================================================
 
-            document.getElementById('btn-add-goal').addEventListener('click', function() {
-                var skill = prompt('请输入要学习的技能名称（如：Python 编程）:');
-                if (!skill || skill.trim() === '') return;
+            document.getElementById('btn-add-goal').addEventListener('click', async function() {
+                var skill = await showPrompt('新建目标', '请输入要学习的技能名称', '如：Python 编程');
+                if (skill === null || skill.trim() === '') return;
 
                 var refMsg = '📚 常见技能参考时长：\n';
                 skillRefs.forEach(function(r) {
@@ -683,24 +696,25 @@
                 });
                 refMsg += '\n请设定你的目标学习时长（小时）:';
 
-                var hoursStr = prompt(refMsg);
-                if (!hoursStr) return;
+                var hoursStr = await showPrompt('新建目标', refMsg, '如：40');
+                if (hoursStr === null) return;
                 var hours = parseFloat(hoursStr);
                 if (isNaN(hours) || hours <= 0) {
-                    alert('请输入有效的小时数');
+                    await showAlert('提示', '请输入有效的小时数');
                     return;
                 }
 
-                var bonusStr = prompt('达成目标后，时薪增加多少元？（如：5）:');
-                if (!bonusStr) return;
+                var bonusStr = await showPrompt('新建目标', '达成目标后，时薪增加多少元？', '如：5');
+                if (bonusStr === null) return;
                 var bonus = parseFloat(bonusStr);
                 if (isNaN(bonus) || bonus <= 0) {
-                    alert('请输入有效的加薪金额');
+                    await showAlert('提示', '请输入有效的加薪金额');
                     return;
                 }
 
                 addGoal(skill.trim(), hours, bonus);
-                alert('✅ 学习目标已创建！\n' + skill.trim() + ' | ' + hours + 'h | +' + bonus + '元/时\n\n💡 学多少加多少，每分每秒都在涨薪！');
+                await showAlert('✅ 已创建', '学习目标已创建！\n' + skill.trim() + ' | ' + hours + 'h | +' + bonus +
+                    '元/时\n\n💡 学多少加多少，每分每秒都在涨薪！');
             });
 
             document.getElementById('goals-container').addEventListener('click', function(e) {
