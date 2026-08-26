@@ -353,20 +353,29 @@
         <!-- ============================================================
         顶部：今日已赚 + 状态 + 打卡
         ============================================================ -->
+                <!-- ============================================================
+        顶部：今日已赚 + 状态（居中挨在一起）
+        ============================================================ -->
         <section class="flex flex-col items-center pt-2">
-            <div class="top-row">
+            <!-- 第一行：今日已赚 + 状态标签，居中挨在一起 -->
+            <div class="flex items-center justify-center gap-2">
                 <span class="text-on-surface-variant font-label-sm text-label-sm tracking-widest">今日已赚</span>
                 <span class="status-tag working" id="status-tag">⏳ 工作中</span>
-                <span class="streak-badge" id="streak-badge">
-                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1;">local_fire_department</span>
-                    <span id="streak-count">0</span> 天
-                </span>
             </div>
+
+            <!-- 第二行：大数字 -->
             <div class="flex items-baseline gap-1 mt-1 roll-in">
                 <span class="font-headline-md text-headline-md text-primary translate-y-[-6px]">¥</span>
                 <h2 class="font-display-lg text-display-lg text-primary tracking-tighter" id="hero-counter" style="font-size:72px;line-height:1.05;">0.00</h2>
             </div>
-            <div class="mt-1 flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low text-on-tertiary-container font-label-sm text-label-sm">
+
+            <!-- 第三行：连续打卡 + 实时增长，居中挨在一起 -->
+            <div class="mt-1 flex items-center gap-3 px-3 py-1 rounded-full bg-surface-container-low text-on-tertiary-container font-label-sm text-label-sm">
+                <span class="streak-badge" id="streak-badge" style="background:transparent;color:#ff4500;box-shadow:none;padding:0;font-size:13px;">
+                    <span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL'1;">local_fire_department</span>
+                    <span id="streak-count">0</span> 天
+                </span>
+                <span class="w-px h-4 bg-surface-variant/50"></span>
                 <span class="material-symbols-outlined text-[14px] animate-realtime" id="live-indicator" style="font-variation-settings:'FILL'1;">arrow_upward</span>
                 <span id="live-label">实时增长中</span>
             </div>
