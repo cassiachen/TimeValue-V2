@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+    <title>构建你的时间基准线 - 时值 TimeValue</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+    </script>
+    <script src="shared/storage.js"></script>
+    <script src="shared/toast.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
+    <script src="shared/tailwind-config.js"></script>
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .input-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: #030304;
+            transition: width 0.3s ease;
+        }
+        .input-wrapper:focus-within::after {
+            width: 100%;
+        }
+        /* 🆕 备份按钮 hover 效果 */
+        .backup-btn {
+            transition: all 0.2s ease;
+        }
+        .backup-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+        .backup-btn:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased min-h-screen">
+
+    <!-- TopAppBar -->
+    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-page h-14 bg-surface-container-lowest">
+        <button class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-200" onclick="window.location.href='index.html'">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div class="font-headline-md text-headline-md-mobile font-bold tracking-tight text-primary">
+            时值 TimeValue
+        </div>
+        <div class="w-6"></div>
+    </header>
+
+    <main class="pt-[80px] pb-[120px] px-margin-page max-w-md mx-auto">
+
+        <!-- 标题 -->
+        <div class="mb-stack-lg">
+            <h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary tracking-tight">
+                构建你的时间基准线
+            </h1>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-stack-sm">
+                通过量化你的基础投入，计算出你时间的真实价值。
+            </p>
+        </div>
+
+        <!-- ===== 表单 ===== -->
+        <section class="flex flex-col gap-stack-md mb-stack-lg">
+            <!-- 月薪 -->
+            <div class="relative group input-wrapper pb-unit">
+                <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+                    月薪 (Monthly Salary)
+                </label>
+                <div class="flex items-center">
+                    <span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="monthlySalary" placeholder="10000" type="number" step="100" />
+                </div>
+            </div>
+
+            <!-- 工作天数 -->
+            <div class="relative group input-wrapper pb-unit">
+                <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                    每月工作天数 (Work days per month)
+                </label>
+                <div class="flex items-center">
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="workDays" placeholder="22" type="number" step="1" />
+                    <span class="font-body-lg text-body-lg text-on-surface-variant ml-2">天</span>
+                </div>
+            </div>
+
+            <!-- 上下班时间 -->
+            <div class="grid grid-cols-2 gap-gutter-card">
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        上班时间
+                    </label>
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors outline-none" id="workStart" type="time" value="09:00" />
+                </div>
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        下班时间
+                    </label>
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors outline-none" id="workEnd" type="time" value="18:00" />
+                </div>
+            </div>
+
+            <!-- 午休时间 -->
+            <div class="relative group input-wrapper pb-unit">
+                <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                    午休时间 (Lunch break)
+                </label>
+                <div class="flex items-center">
+                    <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="lunchBreak" placeholder="1.5" step="0.5" type="number" />
+                    <span class="font-body-lg text-body-lg text-on-surface-variant ml-2">小时</span>
+                </div>
+            </div>
+
+            <!-- 年龄 & 预期寿命 -->
+            <div class="grid grid-cols-2 gap-gutter-card">
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        当前年龄
+                    </label>
+                    <div class="flex items-center">
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="currentAge" placeholder="25" type="number" step="1" />
+                        <span class="font-body-lg text-body-lg text-on-surface-variant ml-2">岁</span>
+                    </div>
+                </div>
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary">
+                        预期寿命
+                    </label>
+                    <div class="flex items-center">
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="expectedLife" placeholder="80" type="number" step="1" value="100" />
+                        <span class="font-body-lg text-body-lg text-on-surface-variant ml-2">岁</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 固定支出 ===== -->
+        <section class="mt-stack-lg">
+            <h2 class="font-headline-md text-headline-md text-primary mb-stack-md flex items-center gap-2">
+                固定支出 (月)
+            </h2>
+            <div class="flex flex-col gap-stack-md">
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">home</span> 房租/房贷
+                    </label>
+                    <div class="flex items-center">
+                        <span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="rentExpense" placeholder="0" type="number" step="100" />
+                    </div>
+                </div>
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">directions_subway</span> 通勤
+                    </label>
+                    <div class="flex items-center">
+                        <span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="commuteExpense" placeholder="0" type="number" step="50" />
+                    </div>
+                </div>
+                <div class="relative group input-wrapper pb-unit">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit transition-colors group-focus-within:text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">restaurant</span> 三餐
+                    </label>
+                    <div class="flex items-center">
+                        <span class="font-body-lg text-body-lg text-on-surface-variant mr-2">¥</span>
+                        <input class="w-full bg-transparent border-0 border-b border-surface-variant focus:ring-0 px-0 py-stack-sm font-body-lg text-body-lg text-primary transition-colors placeholder:text-outline-variant outline-none" id="mealsExpense" placeholder="0" type="number" step="100" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+        🆕 本地备份
+        ============================================================ -->
+        <section class="mt-stack-lg pt-4 border-t border-surface-variant/30">
+            <h2 class="font-headline-md text-headline-md text-primary mb-stack-md flex items-center gap-2">
+                <span class="material-symbols-outlined">backup</span> 数据备份
+            </h2>
+            <p class="font-label-sm text-label-sm text-on-surface-variant/60 mb-3">所有数据存储在本地浏览器中，建议定期备份</p>
+            <div class="flex flex-col gap-3">
+                <div class="flex gap-2">
+                    <button class="flex-1 py-2.5 bg-primary/10 text-primary rounded-xl text-sm font-medium transition-transform flex items-center justify-center gap-2 backup-btn" id="export-json-btn">
+                        <span class="material-symbols-outlined text-[18px]">file_download</span> 导出 JSON
+                    </button>
+                    <button class="flex-1 py-2.5 bg-primary/10 text-primary rounded-xl text-sm font-medium transition-transform flex items-center justify-center gap-2 backup-btn" id="export-summary-btn">
+                        <span class="material-symbols-outlined text-[18px]">description</span> 导出摘要
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <button class="flex-1 py-2.5 bg-error/10 text-error rounded-xl text-sm font-medium transition-transform flex items-center justify-center gap-2 backup-btn" id="import-json-btn">
+                        <span class="material-symbols-outlined text-[18px]">file_upload</span> 导入 JSON
+                    </button>
+                    <input type="file" id="import-file-input" accept=".json" style="display:none;">
+                </div>
+                <p class="text-xs text-on-surface-variant/40 text-center">导入将<strong class="text-error">覆盖</strong>所有现有数据，请先导出备份</p>
+            </div>
+        </section>
+
+        <!-- ===== 保存按钮 ===== -->
+        <div class="fixed bottom-0 left-0 w-full p-margin-page pb-10 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest to-transparent md:relative md:p-0 md:mt-stack-lg md:bg-none z-10">
+            <button class="w-full h-[52px] bg-primary text-on-primary font-body-md text-body-md rounded-[16px] flex items-center justify-center font-medium shadow-[0_10px_30px_rgba(0,0,0,0.04)] active:scale-[0.98] transition-transform duration-200" id="saveBtn">
+                保存并开始
+                <span class="material-symbols-outlined ml-2 text-[20px]">arrow_forward</span>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Toast 通知统一由 shared/toast.js 提供的 window.showToast 处理，这里不再重复实现。
+
+        // ============================================================
+        // 1. 加载已有数据
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            var data = TV.storage.get('timeValueData', null);
+            if (data) {
+                document.getElementById('monthlySalary').value = data.monthlySalary || '';
+                document.getElementById('workDays').value = data.workDays || '22';
+                document.getElementById('workStart').value = data.workStart || '09:00';
+                document.getElementById('workEnd').value = data.workEnd || '18:00';
+                document.getElementById('lunchBreak').value = data.lunchBreak || '1.5';
+                document.getElementById('currentAge').value = data.currentAge || '';
+                document.getElementById('expectedLife').value = data.expectedLife || '100';
+                document.getElementById('rentExpense').value = data.rentExpense || '';
+                document.getElementById('commuteExpense').value = data.commuteExpense || '';
+                document.getElementById('mealsExpense').value = data.mealsExpense || '';
+            }
+
+            // ============================================================
+            // 🆕 2. 表单校验
+            // ============================================================
+            // 校验出错时，在对应输入框下面显示一行小字提示，并把下划线变红。
+            function setFieldError(inputId, message) {
+                var input = document.getElementById(inputId);
+                var wrapper = input.closest('.input-wrapper');
+                if (!wrapper) return;
+                input.style.borderBottomColor = '#ba1a1a';
+                var errEl = wrapper.querySelector('.field-error');
+                if (!errEl) {
+                    errEl = document.createElement('p');
+                    errEl.className = 'field-error text-xs text-error mt-1';
+                    wrapper.appendChild(errEl);
+                }
+                errEl.textContent = message;
+            }
+
+            function clearFieldError(inputId) {
+                var input = document.getElementById(inputId);
+                var wrapper = input.closest('.input-wrapper');
+                if (!wrapper) return;
+                input.style.borderBottomColor = '';
+                var errEl = wrapper.querySelector('.field-error');
+                if (errEl) errEl.remove();
+            }
+
+            function clearAllFieldErrors() {
+                ['monthlySalary', 'workDays', 'workStart', 'workEnd', 'lunchBreak', 'currentAge', 'expectedLife']
+                    .forEach(clearFieldError);
+            }
+
+            // 返回 { valid: boolean, data: {...} }；无效时同时把具体错误标在字段上
+            function validateAndCollect() {
+                clearAllFieldErrors();
+                var firstInvalidId = null;
+                function fail(id, message) {
+                    setFieldError(id, message);
+                    if (!firstInvalidId) firstInvalidId = id;
+                }
+
+                var monthlySalary = parseFloat(document.getElementById('monthlySalary').value);
+                if (!(monthlySalary > 0)) fail('monthlySalary', '请填写大于 0 的月薪');
+
+                var workDays = parseFloat(document.getElementById('workDays').value) || 22;
+                if (workDays < 1 || workDays > 31) fail('workDays', '每月工作天数需在 1-31 之间');
+
+                var workStart = document.getElementById('workStart').value || '09:00';
+                var workEnd = document.getElementById('workEnd').value || '18:00';
+                var lunchBreak = parseFloat(document.getElementById('lunchBreak').value) || 0;
+
+                var startParts = workStart.split(':').map(Number);
+                var endParts = workEnd.split(':').map(Number);
+                var startMinutes = startParts[0] * 60 + startParts[1];
+                var endMinutes = endParts[0] * 60 + endParts[1];
+                var workMinutes = endMinutes - startMinutes - lunchBreak * 60;
+
+                if (endMinutes <= startMinutes) {
+                    fail('workEnd', '下班时间需晚于上班时间');
+                } else if (workMinutes <= 0) {
+                    fail('lunchBreak', '午休时长过长，导致实际工作时长为 0');
+                }
+
+                var currentAge = parseFloat(document.getElementById('currentAge').value);
+                if (!(currentAge > 0) || currentAge > 120) fail('currentAge', '请填写 1-120 之间的年龄');
+
+                var expectedLife = parseFloat(document.getElementById('expectedLife').value) || 100;
+                if (expectedLife > 150) fail('expectedLife', '预期寿命请填写合理数值（≤150）');
+                else if (currentAge > 0 && expectedLife <= currentAge) fail('expectedLife', '预期寿命需大于当前年龄');
+
+                if (firstInvalidId) {
+                    document.getElementById(firstInvalidId).focus();
+                    showToast('请检查标红的字段', 'error');
+                    return { valid: false };
+                }
+
+                var data = {
+                    monthlySalary: monthlySalary,
+                    workDays: workDays,
+                    workStart: workStart,
+                    workEnd: workEnd,
+                    lunchBreak: lunchBreak,
+                    currentAge: currentAge,
+                    expectedLife: expectedLife,
+                    rentExpense: parseFloat(document.getElementById('rentExpense').value) || 0,
+                    commuteExpense: parseFloat(document.getElementById('commuteExpense').value) || 0,
+                    mealsExpense: parseFloat(document.getElementById('mealsExpense').value) || 0
+                };
+                data.monthlyExpenses = data.rentExpense + data.commuteExpense + data.mealsExpense;
+                data.workHoursPerDay = Math.max(0, workMinutes / 60);
+                return { valid: true, data: data };
+            }
+
+            // 输入时如果字段之前标红了，一旦重新输入就先清掉那条错误提示，避免摆在那里不消失
+            ['monthlySalary', 'workDays', 'workStart', 'workEnd', 'lunchBreak', 'currentAge', 'expectedLife']
+                .forEach(function(id) {
+                    document.getElementById(id).addEventListener('input', function() {
+                        clearFieldError(id);
+                    });
+                });
+
+            // ============================================================
+            // 3. 保存并跳转
+            // ============================================================
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                var result = validateAndCollect();
+                if (!result.valid) return;
+
+                TV.storage.set('timeValueData', result.data);
+                window.location.href = 'wage.html';
+            });
+
+            // ============================================================
+            // 🆕 4. 本地备份功能
+            // ============================================================
+
+            // 获取所有本地数据（统一走 TV.storage，逻辑与各页面读取方式保持一致）
+            function getAllData() {
+                return TV.storage.getAll();
+            }
+
+            // 导出 JSON
+            document.getElementById('export-json-btn').addEventListener('click', function() {
+                var data = getAllData();
+                var json = JSON.stringify(data, null, 2);
+                var blob = new Blob([json], { type: 'application/json' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'timevalue_backup_' + new Date().toISOString().split('T')[0] + '.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('✅ JSON 备份已导出', 'success');
+            });
+
+            // 导出摘要
+            document.getElementById('export-summary-btn').addEventListener('click', function() {
+                var data = getAllData();
+                var summary = '═══════════════════════════════════════════\n';
+                summary += '  时值 TimeValue - 数据摘要\n';
+                summary += '  导出时间：' + new Date().toLocaleString() + '\n';
+                summary += '═══════════════════════════════════════════\n\n';
+
+                // 1. 基本信息
+                var base = data.timeValueData || {};
+                summary += '【基本信息】\n';
+                summary += '  月薪：¥' + (base.monthlySalary || 0) + '\n';
+                summary += '  每月工作天数：' + (base.workDays || 22) + ' 天\n';
+                summary += '  每日工作时长：' + (base.workHoursPerDay || 8) + ' 小时\n';
+                summary += '  时薪：¥' + ((base.monthlySalary || 0) / ((base.workDays || 22) * (base.workHoursPerDay || 8))).toFixed(
+                    2) + '\n';
+                summary += '  当前年龄：' + (base.currentAge || 25) + ' 岁\n';
+                summary += '  预期寿命：' + (base.expectedLife || 100) + ' 岁\n';
+                summary += '  每月固定支出：¥' + (base.monthlyExpenses || 0) + '\n\n';
+
+                // 2. 学习数据
+                var goals = data.learningGoals || [];
+                var totalBonus = data.learningTotalBonus || 0;
+                summary += '【学习涨薪】\n';
+                summary += '  累计学习加薪：+¥' + totalBonus.toFixed(2) + ' / 小时\n';
+                summary += '  学习目标数：' + goals.length + ' 个\n';
+                var completedCount = goals.filter(function(g) { return g.isCompleted; }).length;
+                summary += '  已完成目标：' + completedCount + ' 个\n';
+                if (goals.length > 0) {
+                    summary += '  目标详情：\n';
+                    goals.forEach(function(g) {
+                        var progress = Math.min(100, (g.completedHours / g.targetHours) * 100);
+                        summary += '    - ' + g.skillName + '：' + g.completedHours + '/' + g.targetHours +
+                            'h (' + progress.toFixed(0) + '%)' + (g.isCompleted ? ' ✅' : '') + '\n';
+                    });
+                }
+                summary += '\n';
+
+                // 3. 每日收入
+                var earnings = data.dailyEarningsHistory || {};
+                var keys = Object.keys(earnings).sort();
+                if (keys.length > 0) {
+                    summary += '【每日收入记录】\n';
+                    var totalEarned = 0;
+                    var recentKeys = keys.slice(-14);
+                    recentKeys.forEach(function(key) {
+                        var val = earnings[key];
+                        totalEarned += val;
+                        summary += '  ' + key + '：¥' + val.toFixed(2) + '\n';
+                    });
+                    if (keys.length > 14) {
+                        summary += '  ...（仅显示最近14天，共' + keys.length + '天）\n';
+                    }
+                    summary += '  最近14天合计：¥' + totalEarned.toFixed(2) + '\n\n';
+                }
+
+                // 4. 消费记录
+                var purchases = data.purchaseHistory || [];
+                if (purchases.length > 0) {
+                    summary += '【消费记录】\n';
+                    var totalSpent = 0;
+                    purchases.forEach(function(p) {
+                        totalSpent += p.price;
+                    });
+                    summary += '  总消费件数：' + purchases.length + ' 件\n';
+                    summary += '  总消费金额：¥' + totalSpent.toFixed(2) + '\n';
+                    var recentPurchases = purchases.slice(-10);
+                    if (recentPurchases.length > 0) {
+                        summary += '  最近10件：\n';
+                        recentPurchases.forEach(function(p) {
+                            summary += '    - ' + (p.itemName || '物品') + '：¥' + p.price.toFixed(2) + '\n';
+                        });
+                    }
+                    summary += '\n';
+                }
+
+                // 5. 打卡
+                var streak = data.appStreak || {};
+                summary += '【连续打卡】\n';
+                summary += '  连续关注天数：' + (streak.count || 0) + ' 天\n';
+                if (streak.lastDate) {
+                    summary += '  最近打卡：' + streak.lastDate + '\n';
+                }
+                summary += '\n';
+
+                // 6. 人生里程碑
+                var milestones = data.lifeMilestones || [];
+                if (milestones.length > 0) {
+                    summary += '【人生里程碑】\n';
+                    milestones.sort(function(a, b) { return a.age - b.age; });
+                    milestones.forEach(function(m) {
+                        summary += '  ' + m.age + ' 岁：' + m.name + '\n';
+                    });
+                    summary += '\n';
+                }
+
+                // 7. 每日反思
+                var reflections = data.lifeReflections || {};
+                var refKeys = Object.keys(reflections).sort();
+                if (refKeys.length > 0) {
+                    summary += '【每日反思】\n';
+                    var recentRefs = refKeys.slice(-7);
+                    recentRefs.forEach(function(key) {
+                        var text = reflections[key] || '';
+                        if (text.length > 30) text = text.substring(0, 30) + '...';
+                        summary += '  ' + key + '：' + text + '\n';
+                    });
+                    summary += '  共 ' + refKeys.length + ' 篇反思\n\n';
+                }
+
+                summary += '═══════════════════════════════════════════\n';
+                summary += '  数据备份于 ' + new Date().toLocaleString() + '\n';
+                summary += '  时值 TimeValue — 看见时间，也看见自己。\n';
+                summary += '═══════════════════════════════════════════';
+
+                var blob = new Blob([summary], { type: 'text/plain;charset=utf-8' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'timevalue_summary_' + new Date().toISOString().split('T')[0] + '.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('✅ 摘要已导出', 'success');
+            });
+
+            // 导入 JSON
+            document.getElementById('import-json-btn').addEventListener('click', function() {
+                document.getElementById('import-file-input').click();
+            });
+
+            document.getElementById('import-file-input').addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    try {
+                        var data = JSON.parse(ev.target.result);
+
+                        // 验证是否是有效的备份文件
+                        if (!data || typeof data !== 'object') {
+                            showToast('❌ 无效的备份文件', 'error');
+                            return;
+                        }
+
+                        // 确认覆盖
+                        if (!confirm('⚠️ 导入将覆盖所有现有数据，确定继续吗？')) {
+                            return;
+                        }
+
+                        // 写入本地数据（统一走 TV.storage，自动处理对象/字符串的序列化）
+                        Object.keys(data).forEach(function(key) {
+                            var ok = TV.storage.set(key, data[key]);
+                            if (!ok) console.warn('写入失败：' + key);
+                        });
+
+                        showToast('✅ 数据导入成功！页面即将刷新', 'success');
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1500);
+
+                    } catch (err) {
+                        showToast('❌ 解析文件失败：' + err.message, 'error');
+                    }
+                };
+                reader.readAsText(file);
+                // 重置 input，以便重复选择同一文件
+                this.value = '';
+            });
+        });
+    </script>
+</body>
+</html>

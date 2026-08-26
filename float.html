@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <script src="shared/storage.js"></script>
+    <script src="shared/toast.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>时值悬浮窗</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: rgba(20, 22, 28, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            user-select: none;
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .container {
+            text-align: center;
+            padding: 8px 16px;
+            width: 100%;
+        }
+
+        .label {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.35);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 2px;
+        }
+
+        .amount {
+            font-size: 52px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            text-shadow: 0 2px 20px rgba(78, 222, 163, 0.15);
+            transition: transform 0.1s ease;
+        }
+        /* 🆕 跳动幅度加大：从 1.02 → 1.10，并且增加颜色变化 */
+        .amount.pulse {
+            animation: big-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes big-pop {
+            0% {
+                transform: scale(1);
+                color: #ffffff;
+            }
+            30% {
+                transform: scale(1.10);
+                color: #6ffbbe;
+            }
+            60% {
+                transform: scale(0.97);
+                color: #ffffff;
+            }
+            100% {
+                transform: scale(1);
+                color: #ffffff;
+            }
+        }
+
+        .status {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 4px;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+        .status .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+            position: relative;
+            top: -1px;
+        }
+        .dot.working { background: #4edea3; box-shadow: 0 0 12px rgba(78, 222, 163, 0.5); }
+        .dot.off { background: #9e9e9e; }
+        .dot.waiting { background: #ffb74d; box-shadow: 0 0 12px rgba(255, 183, 77, 0.4); }
+
+        .drag-hint {
+            position: absolute;
+            bottom: 6px;
+            right: 12px;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.08);
+            letter-spacing: 0.05em;
+            pointer-events: none;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            padding: 4px;
+            line-height: 1;
+        }
+        .close-btn:hover {
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <button class="close-btn" onclick="window.close()" title="关闭悬浮窗">✕</button>
+
+    <div class="container">
+        <div class="label">今日已赚</div>
+        <div class="amount" id="float-amount">¥0.00</div>
+        <div class="status" id="float-status">
+            <span class="dot working" id="status-dot"></span>
+            <span id="status-text">实时增长中</span>
+        </div>
+    </div>
+
+    <div class="drag-hint">拖拽移动</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ============================================================
+            // 1. 核心计算逻辑（与 wage.html 保持一致）
+            // ============================================================
+            function getData() {
+                return TV.storage.get('timeValueData', null);
+            }
+
+            function parseTime(str) {
+                const parts = str.split(':').map(Number);
+                return parts[0] * 3600 + parts[1] * 60;
+            }
+
+            function getTodayEarnings() {
+                const data = getData();
+
+                const salary = data?.monthlySalary || 10000;
+                const workDays = data?.workDays || 22;
+                const workHoursPerDay = data?.workHoursPerDay || 8;
+                const hourlyWage = salary / (workDays * workHoursPerDay);
+                const secondWage = hourlyWage / 3600;
+
+                const workStart = data?.workStart || '09:00';
+                const workEnd = data?.workEnd || '18:00';
+                const lunchBreak = data?.lunchBreak || 1.5;
+
+                const startSec = parseTime(workStart);
+                const endSec = parseTime(workEnd);
+                const lunchSec = lunchBreak * 3600;
+                const totalWorkSec = endSec - startSec - lunchSec;
+
+                const now = new Date();
+                const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+                let workedSec = 0;
+
+                if (currentSec <= startSec) {
+                    workedSec = 0;
+                } else if (currentSec >= endSec) {
+                    workedSec = totalWorkSec;
+                } else {
+                    workedSec = currentSec - startSec;
+                    const midpoint = startSec + (endSec - startSec) / 2;
+                    if (currentSec > midpoint) {
+                        workedSec -= lunchSec;
+                    }
+                }
+
+                workedSec = Math.max(0, Math.min(workedSec, totalWorkSec));
+                return workedSec * secondWage;
+            }
+
+            // ============================================================
+            // 2. 获取状态
+            // ============================================================
+            function getStatus() {
+                const data = getData();
+                const workStart = data?.workStart || '09:00';
+                const workEnd = data?.workEnd || '18:00';
+                const startSec = parseTime(workStart);
+                const endSec = parseTime(workEnd);
+
+                const now = new Date();
+                const currentSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+                if (currentSec < startSec) return { label: '等待开工', dot: 'waiting' };
+                if (currentSec >= endSec) return { label: '已下班', dot: 'off' };
+                return { label: '实时增长中', dot: 'working' };
+            }
+
+            // ============================================================
+            // 3. 更新 UI
+            // ============================================================
+            const amountEl = document.getElementById('float-amount');
+            const statusText = document.getElementById('status-text');
+            const statusDot = document.getElementById('status-dot');
+
+            let lastAmount = -1;
+
+            function update() {
+                const earned = getTodayEarnings();
+                const status = getStatus();
+
+                // 🆕 阈值调低，让跳动更频繁（只要变化超过 0.001 元就触发）
+                if (Math.abs(earned - lastAmount) > 0.001) {
+                    amountEl.classList.remove('pulse');
+                    void amountEl.offsetWidth; // 强制重绘
+                    amountEl.classList.add('pulse');
+                    lastAmount = earned;
+                }
+
+                amountEl.textContent = '¥' + earned.toFixed(2);
+
+                statusText.textContent = status.label;
+                statusDot.className = 'dot ' + status.dot;
+            }
+
+            // 首次更新
+            update();
+
+            // 🆕 更新频率加快：每 500ms 刷新一次（原 1000ms），跳动更密集
+            setInterval(update, 500);
+
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'timeValueData') {
+                    update();
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>

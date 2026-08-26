@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>时值 TimeValue - 欢迎</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+    </script>
+    <script src="shared/storage.js"></script>
+    <script src="shared/toast.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="shared/tailwind-config.js"></script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .delay-100 {
+            animation-delay: 100ms;
+        }
+        .delay-200 {
+            animation-delay: 200ms;
+        }
+        .delay-300 {
+            animation-delay: 300ms;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+        }
+        .pt-safe {
+            padding-top: env(safe-area-inset-top, 24px);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface h-screen w-full flex flex-col items-center justify-between overflow-hidden antialiased">
+
+    <!-- 顶部占位 -->
+    <div class="w-full flex-none h-16 pt-safe px-margin-page"></div>
+
+    <!-- 主内容 -->
+    <main class="flex-1 w-full max-w-md mx-auto flex flex-col items-center justify-center px-margin-page">
+
+        <!-- Logo -->
+        <div class="mb-stack-lg fade-in-up">
+            <div class="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.04)] bg-surface flex items-center justify-center">
+                <img alt="时值 TimeValue Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1UJdohJfK4kVhxLIoVm-lsVCZQrxFnrv9MPYaeXsW7iAdOZ6QkE2r3W3fdC0oaxJFHcVfZwUjelsJL2Ftev274yNNbh1hZDAMnLmpIsdAAo4wLQANRxmzQk-j7emBAnbK0NhFhGUI-t3Lx8c2u3rNdvXteuz2nzoePPVHmaX2rnOPKcfIzBeBEnW8FVtBa9HPnkwTE2eFplQ0rjAGGzgNOdoGDU_laXN7IIgsCEAH8QmV1XKADF0cmPGBs" />
+            </div>
+        </div>
+
+        <!-- 文案 -->
+        <div class="text-center space-y-stack-md flex flex-col items-center w-full">
+            <h1 class="font-display-lg text-display-lg text-primary tracking-tight fade-in-up delay-100">
+                时值 TimeValue
+            </h1>
+            <h2 class="font-headline-md text-headline-md text-on-surface fade-in-up delay-200">
+                看见时间，也看见价值。
+            </h2>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-[280px] fade-in-up delay-300">
+                今日工资 · 学习涨薪 · 时间消费 · 人生剩余
+            </p>
+        </div>
+    </main>
+
+    <!-- 底部按钮 -->
+    <div class="w-full max-w-md mx-auto px-margin-page pb-12 pt-6 flex-none fade-in-up delay-300">
+        <button class="w-full h-[52px] bg-primary-container text-on-primary rounded-[16px] font-body-lg text-body-lg font-medium tracking-wide flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all duration-200 ease-out shadow-[0_10px_30px_rgba(0,0,0,0.08)]" id="start-btn">
+            开始使用
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('start-btn').addEventListener('click', function() {
+                var parsed = TV.storage.get('timeValueData', null);
+                if (parsed && parsed.monthlySalary && parsed.workDays) {
+                    window.location.href = 'wage.html';
+                    return;
+                }
+                window.location.href = 'settings.html';
+            });
+        });
+    </script>
+</body>
+</html>
