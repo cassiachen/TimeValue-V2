@@ -101,7 +101,6 @@
             border-top-color: #1a1c1d;
         }
 
-        /* 年份标签 */
         .year-label {
             font-size: 10px;
             color: #77767b;
@@ -111,7 +110,6 @@
             flex-shrink: 0;
             padding-top: 2px;
         }
-
         .year-row {
             display: flex;
             align-items: center;
@@ -122,7 +120,7 @@
             flex: 1;
         }
 
-        /* 弹窗样式 (仅用于里程碑详情，不冲突) */
+        /* 里程碑详情弹窗 */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -156,7 +154,7 @@
             transform: scale(1);
         }
 
-        /* 每日一句反思区 */
+        /* 反思输入 */
         .reflection-input {
             border: none;
             border-bottom: 2px solid #e2e2e4;
@@ -176,12 +174,81 @@
             color: #c7c6ca;
         }
 
-        /* 里程碑列表 */
-        .milestone-item {
-            transition: all 0.2s ease;
+        /* 日历 */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-top: 8px;
         }
-        .milestone-item:hover {
+        .calendar-grid .day-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
             background: #f3f3f5;
+            transition: all 0.15s ease;
+            color: #030304;
+            font-weight: 500;
+        }
+        .calendar-grid .day-cell:hover {
+            background: #e2e2e4;
+        }
+        .calendar-grid .day-cell.has-record {
+            background: #4edea3;
+            color: #ffffff;
+        }
+        .calendar-grid .day-cell.today {
+            border: 2px solid #030304;
+        }
+        .calendar-grid .day-cell.other-month {
+            color: #c7c6ca;
+            pointer-events: none;
+        }
+        .calendar-grid .weekday-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #77767b;
+            text-align: center;
+            padding-bottom: 4px;
+        }
+
+        /* 历史记录条目 */
+        .reflection-entry {
+            background: #f9f9fb;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            border-left: 3px solid #4edea3;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .reflection-entry .time {
+            font-size: 11px;
+            color: #77767b;
+            flex-shrink: 0;
+        }
+        .reflection-entry .text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #1a1c1d;
+        }
+        .reflection-entry .delete-ref-btn {
+            color: #c7c6ca;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 2px;
+        }
+        .reflection-entry .delete-ref-btn:hover {
+            color: #ba1a1a;
         }
 
         /* 动画 */
@@ -192,21 +259,14 @@
         .animate-fade-in-up {
             animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        @keyframes pulse-glow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .pulse-glow {
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        /* 进度条过渡 */
         .progress-bar-fill {
             transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
         .tab-btn {
             transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            padding-bottom: 8px;
         }
         .tab-btn.active {
             color: #030304;
@@ -223,6 +283,12 @@
         .tab-content.active {
             display: block;
         }
+        .milestone-item {
+            transition: all 0.2s ease;
+        }
+        .milestone-item:hover {
+            background: #f3f3f5;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background min-h-screen antialiased flex flex-col pt-safe">
@@ -238,7 +304,7 @@
 
     <main class="flex-1 w-full max-w-2xl mx-auto pt-24 pb-32 px-margin-page flex flex-col gap-stack-lg relative z-0">
 
-        <!-- ===== 核心数据区 ===== -->
+        <!-- 核心数据区 -->
         <section class="flex flex-col gap-unit mt-stack-md animate-fade-in-up">
             <div class="flex justify-between items-end">
                 <h2 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">人生剩余</h2>
@@ -252,20 +318,19 @@
                 <p class="font-body-md text-body-md text-on-surface-variant opacity-70" id="expected-life-text">基于 80 岁预期寿命</p>
                 <span class="font-label-sm text-label-sm text-on-surface-variant/50">已用 <span id="life-percent-display">0</span>%</span>
             </div>
-            <!-- 人生进度条 -->
             <div class="h-[3px] w-full bg-surface-container-high overflow-hidden rounded-full mt-2">
                 <div class="h-full bg-on-tertiary-container progress-bar-fill w-[0%]" id="life-bar"></div>
             </div>
         </section>
 
-        <!-- ===== Tab 切换 ===== -->
-        <div class="flex gap-6 border-b border-surface-variant/50 pt-4">
+        <!-- Tab 切换（均匀分布） -->
+        <div class="flex gap-1 border-b border-surface-variant/50 pt-4">
             <button class="tab-btn active pb-2 text-sm font-medium" data-tab="grid">生命格子</button>
             <button class="tab-btn pb-2 text-sm font-medium" data-tab="milestones">里程碑</button>
             <button class="tab-btn pb-2 text-sm font-medium" data-tab="reflection">每日反思</button>
         </div>
 
-        <!-- ===== Tab 1: 生命格子图 ===== -->
+        <!-- Tab 1: 生命格子 -->
         <div class="tab-content active" id="tab-grid">
             <div class="bg-surface-container-low rounded-2xl p-4 overflow-x-auto">
                 <div class="flex justify-between items-center mb-3">
@@ -276,17 +341,14 @@
                         <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-[#ff6b6b] inline-block"></span> 里程碑</span>
                     </div>
                 </div>
-                <div id="life-grid-container" class="overflow-y-auto max-h-[420px] pr-1">
-                    <!-- 由 JS 渲染 -->
-                </div>
+                <div id="life-grid-container" class="overflow-y-auto max-h-[420px] pr-1"></div>
                 <p class="text-center text-xs text-on-surface-variant/40 mt-3">点击格子可标记「里程碑」</p>
             </div>
         </div>
 
-        <!-- ===== Tab 2: 里程碑 ===== -->
+        <!-- Tab 2: 里程碑 -->
         <div class="tab-content" id="tab-milestones">
             <div class="flex flex-col gap-4">
-                <!-- 添加里程碑 -->
                 <div class="bg-surface-container-low rounded-2xl p-4">
                     <div class="flex gap-2">
                         <input type="text" id="milestone-input" placeholder="例如：环游世界、买房..." class="flex-1 bg-transparent border-0 border-b border-surface-variant focus:border-on-tertiary-container outline-none px-2 py-2 text-sm text-primary placeholder:text-outline-variant transition-colors" />
@@ -294,17 +356,14 @@
                         <button id="add-milestone-btn" class="px-4 py-2 bg-primary text-on-primary rounded-xl text-sm font-medium active:scale-95 transition-transform">添加</button>
                     </div>
                 </div>
-
-                <!-- 里程碑列表 -->
-                <div id="milestone-list" class="flex flex-col gap-2">
-                    <!-- 由 JS 渲染 -->
-                </div>
+                <div id="milestone-list" class="flex flex-col gap-2"></div>
             </div>
         </div>
 
-        <!-- ===== Tab 3: 每日反思 ===== -->
+        <!-- Tab 3: 每日反思（含日历） -->
         <div class="tab-content" id="tab-reflection">
             <div class="bg-surface-container-low rounded-2xl p-5 flex flex-col gap-4">
+
                 <!-- 今日格言 -->
                 <div class="bg-surface-container rounded-xl p-4 border-l-4 border-on-tertiary-container">
                     <div class="flex items-center gap-2 text-on-surface-variant/60 text-xs mb-1">
@@ -315,23 +374,41 @@
                     <p class="text-xs text-on-surface-variant/40 mt-2 text-right" id="quote-author">— 未知</p>
                 </div>
 
-                <!-- 反思输入 -->
+                <!-- 新增反思 -->
                 <div>
                     <label class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
                         <span class="material-symbols-outlined text-[16px]">edit_note</span>
-                        写下今天的思考
+                        写下此刻的思考
                     </label>
-                    <textarea id="reflection-input" rows="3" placeholder="今天让你感触最深的是什么？" class="reflection-input mt-2 px-1"></textarea>
-                    <div class="flex justify-end mt-2">
-                        <button id="save-reflection-btn" class="text-xs px-4 py-1.5 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors">保存反思</button>
+                    <textarea id="reflection-input" rows="2" placeholder="今天让你感触最深的是什么？" class="reflection-input mt-2 px-1"></textarea>
+                    <div class="flex justify-between items-center mt-2">
+                        <button id="save-reflection-btn" class="text-xs px-4 py-1.5 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors">保存</button>
+                        <span id="reflection-saved-hint" class="text-xs text-tertiary-fixed-dim hidden">✅ 已保存</span>
                     </div>
-                    <div id="reflection-saved-hint" class="text-xs text-tertiary-fixed-dim mt-1 text-right hidden">✅ 已保存</div>
                 </div>
 
-                <!-- 历史反思 -->
+                <!-- 日历 -->
                 <div class="mt-2 border-t border-surface-variant/30 pt-3">
                     <div class="flex justify-between items-center mb-2">
-                        <span class="font-label-sm text-label-sm text-on-surface-variant">📖 过往记录</span>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">📅 日历</span>
+                        <div class="flex gap-2">
+                            <button id="calendar-prev" class="text-sm text-on-surface-variant/50 hover:text-primary transition-colors">‹</button>
+                            <span id="calendar-month-year" class="text-sm font-medium text-primary"></span>
+                            <button id="calendar-next" class="text-sm text-on-surface-variant/50 hover:text-primary transition-colors">›</button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendar-grid">
+                        <!-- 由 JS 生成 -->
+                    </div>
+                    <div id="calendar-records" class="mt-3 max-h-48 overflow-y-auto">
+                        <!-- 点击日期后显示该日记录 -->
+                    </div>
+                </div>
+
+                <!-- 历史记录（快速查看最近） -->
+                <div class="border-t border-surface-variant/30 pt-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">📖 最近记录</span>
                     </div>
                     <div id="reflection-history" class="flex flex-col gap-2 max-h-48 overflow-y-auto">
                         <!-- 由 JS 渲染 -->
@@ -344,35 +421,30 @@
 
     <!-- BottomNavBar -->
     <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-page py-4 pb-safe bg-surface/95 backdrop-blur-md shadow-[0_-10px_30px_rgba(0,0,0,0.04)] rounded-t-xl">
-
         <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='wage.html'">
             <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">payments</span>
             <span class="font-label-sm text-[11px]">今日工资</span>
         </button>
-
         <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='learn.html'">
             <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">school</span>
             <span class="font-label-sm text-[11px]">学习涨薪</span>
         </button>
-
         <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='time.html'">
             <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">schedule</span>
             <span class="font-label-sm text-[11px]">时间消费</span>
         </button>
-
         <button class="flex flex-col items-center justify-center text-primary font-bold transition-colors duration-300 w-16 gap-1" onclick="window.location.href='life.html'">
             <span class="material-symbols-outlined filled-icon" style="font-variation-settings:'FILL'1;">auto_awesome</span>
             <span class="font-label-sm text-[11px]">人生剩余</span>
         </button>
-
     </nav>
 
-    <!-- ===== 品牌水印 ===== -->
+    <!-- 品牌水印 -->
     <div class="text-center py-2 pb-safe">
         <span class="text-[11px] text-outline/40 tracking-[0.15em] font-light select-none">Made by Cassia</span>
     </div>
 
-    <!-- ===== 里程碑详情弹窗 ===== -->
+    <!-- 里程碑详情弹窗 -->
     <div class="modal-overlay" id="milestone-modal">
         <div class="modal-content">
             <h3 class="font-headline-md text-headline-md text-primary mb-2" id="modal-milestone-name">里程碑</h3>
@@ -395,32 +467,24 @@
             // 1. 数据读取
             // ============================================================
             var data = TV.storage.get('timeValueData', null);
-
             var currentAge = data && data.currentAge ? data.currentAge : 23;
             var expectedLife = data && data.expectedLife ? data.expectedLife : 80;
-            var birthYear = new Date().getFullYear() - currentAge;
 
-            // ============================================================
-            // 2. 核心数据更新
-            // ============================================================
             var now = new Date();
             var startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             var todayPassed = now - startOfDay;
             var todayTotal = 24 * 60 * 60 * 1000;
             var todayPercent = (todayPassed / todayTotal) * 100;
-
             var startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
             var nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
             var monthPassed = now - startOfMonth;
             var monthTotal = nextMonth - startOfMonth;
             var monthPercent = (monthPassed / monthTotal) * 100;
-
             var startOfYear = new Date(now.getFullYear(), 0, 1);
             var nextYear = new Date(now.getFullYear() + 1, 0, 1);
             var yearPassed = now - startOfYear;
             var yearTotal = nextYear - startOfYear;
             var yearPercent = (yearPassed / yearTotal) * 100;
-
             var lifePercent = (currentAge / expectedLife) * 100;
             var remainingDays = Math.max(0, (expectedLife - currentAge) * 365);
 
@@ -429,9 +493,6 @@
             document.getElementById('life-percent-display').textContent = lifePercent.toFixed(1);
             document.getElementById('life-bar').style.width = lifePercent + '%';
 
-            // ============================================================
-            // 3. 实时时钟
-            // ============================================================
             function updateClock() {
                 var d = new Date();
                 document.getElementById('realtime-clock').textContent =
@@ -443,13 +504,11 @@
             setInterval(updateClock, 1000);
 
             // ============================================================
-            // 4. 生命格子图
+            // 2. 生命格子 & 里程碑（复用之前的逻辑）
             // ============================================================
             var WEEKS_PER_YEAR = 52;
             var totalWeeks = expectedLife * WEEKS_PER_YEAR;
             var currentWeek = currentAge * WEEKS_PER_YEAR;
-
-            // 读取里程碑数据
             var milestones = TV.storage.get('lifeMilestones', []);
 
             function saveMilestones() {
@@ -459,64 +518,51 @@
             function renderGrid() {
                 var container = document.getElementById('life-grid-container');
                 if (!container) return;
-
                 var html = '';
                 var totalRows = Math.ceil(totalWeeks / WEEKS_PER_YEAR);
-
                 for (var year = 0; year < totalRows; year++) {
                     var startWeek = year * WEEKS_PER_YEAR;
                     var endWeek = Math.min(startWeek + WEEKS_PER_YEAR, totalWeeks);
                     var ageStart = (startWeek / WEEKS_PER_YEAR).toFixed(1);
-
                     html += '<div class="year-row">';
                     html += '<span class="year-label">' + ageStart + 'y</span>';
                     html += '<div class="week-grid">';
-
                     for (var w = startWeek; w < endWeek; w++) {
                         var isPassed = w < currentWeek;
                         var isCurrent = w === currentWeek;
                         var milestone = milestones.find(function(m) { return m.weekIndex === w; });
                         var isMilestone = !!milestone;
                         var isFutureMilestone = milestone && !isPassed;
-
                         var cls = 'week-cell';
                         if (isPassed && !isMilestone) cls += ' passed';
                         if (isCurrent) cls += ' passed-current';
                         if (isMilestone && isPassed) cls += ' milestone';
                         if (isFutureMilestone) cls += ' future-milestone';
-
                         var tooltip = '';
                         if (isCurrent) tooltip = '📍 现在';
                         if (milestone) tooltip = '🎯 ' + milestone.name + (milestone.age ? ' (' + milestone.age + '岁)' : '');
-
                         html += '<div class="' + cls + '" data-week="' + w + '" data-age="' + (w / WEEKS_PER_YEAR).toFixed(1) + '">';
                         if (tooltip) {
                             html += '<span class="cell-tooltip">' + tooltip + '</span>';
                         }
                         html += '</div>';
                     }
-
                     html += '</div>';
                     html += '</div>';
                 }
-
                 container.innerHTML = html;
 
-                // 点击格子标记里程碑（使用 showPrompt）
                 container.querySelectorAll('.week-cell').forEach(function(cell) {
                     cell.addEventListener('click', async function() {
                         var week = parseInt(this.dataset.week);
                         var age = parseFloat(this.dataset.age);
                         var existing = milestones.find(function(m) { return m.weekIndex === week; });
-
                         if (existing) {
                             showMilestoneDetail(existing);
                             return;
                         }
-
                         var name = await showPrompt('标记里程碑', '为这个时间点起个名字', '如：大学毕业');
                         if (name === null || name.trim() === '') return;
-
                         var newMilestone = {
                             id: Date.now(),
                             name: name.trim(),
@@ -532,28 +578,20 @@
                 });
             }
 
-            // ============================================================
-            // 5. 里程碑渲染
-            // ============================================================
             function renderMilestones() {
                 var container = document.getElementById('milestone-list');
                 if (!container) return;
-
                 if (milestones.length === 0) {
-                    container.innerHTML =
-                        '<div class="text-center py-6 text-on-surface-variant/50 text-sm">还没有里程碑，在「生命格子」中点击标记吧 🎯</div>';
+                    container.innerHTML = '<div class="text-center py-6 text-on-surface-variant/50 text-sm">还没有里程碑，在「生命格子」中点击标记吧 🎯</div>';
                     return;
                 }
-
                 var sorted = milestones.slice().sort(function(a, b) { return a.age - b.age; });
-
                 var html = '';
                 sorted.forEach(function(m) {
                     var remainingWeeks = m.weekIndex - currentWeek;
                     var remainingDays = Math.round(remainingWeeks * 7);
                     var isPast = remainingWeeks < 0;
                     var progress = Math.max(0, Math.min(100, (currentWeek / m.weekIndex) * 100));
-
                     html += '<div class="milestone-item bg-surface-container-low rounded-xl p-4 flex justify-between items-center" data-id="' + m.id + '">';
                     html += '<div class="flex-1">';
                     html += '<div class="flex items-center gap-2">';
@@ -577,10 +615,8 @@
                     html += '</button>';
                     html += '</div>';
                 });
-
                 container.innerHTML = html;
 
-                // 删除里程碑（使用 showConfirm）
                 container.querySelectorAll('.delete-milestone-btn').forEach(function(btn) {
                     btn.addEventListener('click', async function(e) {
                         e.stopPropagation();
@@ -592,8 +628,6 @@
                         renderGrid();
                     });
                 });
-
-                // 点击里程碑查看详情
                 container.querySelectorAll('.milestone-item').forEach(function(item) {
                     item.addEventListener('click', function() {
                         var id = parseInt(this.dataset.id);
@@ -603,9 +637,7 @@
                 });
             }
 
-            // ============================================================
-            // 6. 里程碑详情弹窗
-            // ============================================================
+            // 里程碑详情弹窗
             var modal = document.getElementById('milestone-modal');
             var modalName = document.getElementById('modal-milestone-name');
             var modalAge = document.getElementById('modal-milestone-age');
@@ -619,24 +651,18 @@
                 currentModalMilestoneId = m.id;
                 modalName.textContent = m.name;
                 modalAge.textContent = '目标年龄：' + m.age + ' 岁';
-
                 var remainingWeeks = m.weekIndex - currentWeek;
                 var remainingDays = Math.round(remainingWeeks * 7);
                 var progress = Math.max(0, Math.min(100, (currentWeek / m.weekIndex) * 100));
-
                 if (remainingWeeks < 0) {
                     modalRemaining.textContent = '✅ 已完成（已过 ' + Math.abs(remainingDays) + ' 天）';
                 } else {
                     modalRemaining.textContent = '还有 ' + remainingDays.toLocaleString() + ' 天';
                 }
                 modalProgress.style.width = Math.min(100, progress) + '%';
-
                 modal.classList.add('show');
             }
-
-            modalCloseBtn.addEventListener('click', function() {
-                modal.classList.remove('show');
-            });
+            modalCloseBtn.addEventListener('click', function() { modal.classList.remove('show'); });
             modalDeleteBtn.addEventListener('click', async function() {
                 if (!currentModalMilestoneId) return;
                 if (!await showConfirm('删除确认', '确定要删除这个里程碑吗？')) return;
@@ -651,7 +677,276 @@
             });
 
             // ============================================================
-            // 7. Tab 切换
+            // 3. 反思系统（支持一天多条记录）
+            // ============================================================
+            // 数据结构：{ "2025-01-15": [ { id: xxx, text: "内容", timestamp: 1234567890 }, ... ] }
+            var REFLECTIONS_KEY = 'lifeReflectionsV2';
+            var reflections = TV.storage.get(REFLECTIONS_KEY, {});
+
+            function saveReflections() {
+                TV.storage.set(REFLECTIONS_KEY, reflections);
+            }
+
+            function getTodayKey() {
+                var d = new Date();
+                return d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+            }
+
+            function formatTime(ts) {
+                var d = new Date(ts);
+                return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+            }
+
+            // 添加一条反思
+            async function addReflection(text) {
+                if (!text || text.trim() === '') {
+                    await showAlert('提示', '请写下你的思考');
+                    return;
+                }
+                var today = getTodayKey();
+                if (!reflections[today]) {
+                    reflections[today] = [];
+                }
+                reflections[today].push({
+                    id: Date.now() + Math.random() * 1000,
+                    text: text.trim(),
+                    timestamp: Date.now()
+                });
+                saveReflections();
+                renderReflections();
+                renderCalendar();
+                renderHistory();
+                document.getElementById('reflection-input').value = '';
+                var hint = document.getElementById('reflection-saved-hint');
+                hint.textContent = '✅ 已保存';
+                hint.classList.remove('hidden');
+                setTimeout(function() { hint.classList.add('hidden'); }, 1500);
+            }
+
+            // 删除一条反思
+            async function deleteReflection(dateKey, id) {
+                if (!await showConfirm('删除确认', '确定要删除这条记录吗？')) return;
+                if (reflections[dateKey]) {
+                    reflections[dateKey] = reflections[dateKey].filter(function(item) { return item.id !== id; });
+                    if (reflections[dateKey].length === 0) {
+                        delete reflections[dateKey];
+                    }
+                    saveReflections();
+                    renderReflections();
+                    renderCalendar();
+                    renderHistory();
+                    // 如果当前查看的是该日期，刷新显示
+                    if (selectedCalendarDate === dateKey) {
+                        renderCalendarRecords(dateKey);
+                    }
+                }
+            }
+
+            // 保存今日反思（点击按钮）
+            document.getElementById('save-reflection-btn').addEventListener('click', function() {
+                var input = document.getElementById('reflection-input');
+                addReflection(input.value);
+            });
+
+            // 回车保存
+            document.getElementById('reflection-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.getElementById('save-reflection-btn').click();
+                }
+            });
+
+            // ============================================================
+            // 4. 日历系统
+            // ============================================================
+            var calendarYear, calendarMonth;
+            var selectedCalendarDate = null;
+
+            function initCalendar(year, month) {
+                calendarYear = year;
+                calendarMonth = month;
+                renderCalendar();
+            }
+
+            function renderCalendar() {
+                var grid = document.getElementById('calendar-grid');
+                var monthYearLabel = document.getElementById('calendar-month-year');
+                if (!grid) return;
+
+                var now = new Date();
+                var today = getTodayKey();
+
+                var firstDay = new Date(calendarYear, calendarMonth, 1);
+                var lastDay = new Date(calendarYear, calendarMonth + 1, 0);
+                var startDayOfWeek = firstDay.getDay(); // 0=周日
+                var daysInMonth = lastDay.getDate();
+
+                var monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+                monthYearLabel.textContent = calendarYear + '年 ' + monthNames[calendarMonth];
+
+                var html = '';
+                var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+                weekdays.forEach(function(wd) {
+                    html += '<div class="weekday-label">' + wd + '</div>';
+                });
+
+                // 填充空白
+                for (var i = 0; i < startDayOfWeek; i++) {
+                    html += '<div class="day-cell other-month"></div>';
+                }
+
+                for (var d = 1; d <= daysInMonth; d++) {
+                    var dateKey = calendarYear + '-' +
+                        String(calendarMonth + 1).padStart(2, '0') + '-' +
+                        String(d).padStart(2, '0');
+                    var isToday = (dateKey === today);
+                    var hasRecord = reflections[dateKey] && reflections[dateKey].length > 0;
+                    var cls = 'day-cell';
+                    if (hasRecord) cls += ' has-record';
+                    if (isToday) cls += ' today';
+                    html += '<div class="' + cls + '" data-date="' + dateKey + '">' + d + '</div>';
+                }
+
+                grid.innerHTML = html;
+
+                // 点击日期查看记录
+                grid.querySelectorAll('.day-cell:not(.other-month)').forEach(function(cell) {
+                    cell.addEventListener('click', function() {
+                        var dateKey = this.dataset.date;
+                        selectedCalendarDate = dateKey;
+                        renderCalendarRecords(dateKey);
+                        // 高亮选中
+                        grid.querySelectorAll('.day-cell').forEach(function(c) { c.style.outline = 'none'; });
+                        this.style.outline = '2px solid #030304';
+                    });
+                });
+
+                // 默认高亮今天
+                var todayCell = grid.querySelector('.day-cell.today');
+                if (todayCell) {
+                    todayCell.click();
+                } else {
+                    // 如果没有今天，默认选中第一天
+                    var firstCell = grid.querySelector('.day-cell:not(.other-month)');
+                    if (firstCell) firstCell.click();
+                }
+            }
+
+            function renderCalendarRecords(dateKey) {
+                var container = document.getElementById('calendar-records');
+                if (!container) return;
+                var records = reflections[dateKey] || [];
+                if (records.length === 0) {
+                    container.innerHTML = '<div class="text-sm text-on-surface-variant/50 py-2">这一天还没有记录</div>';
+                    return;
+                }
+                var html = '';
+                records.sort(function(a, b) { return a.timestamp - b.timestamp; });
+                records.forEach(function(item) {
+                    html += '<div class="reflection-entry">';
+                    html += '<span class="time">' + formatTime(item.timestamp) + '</span>';
+                    html += '<span class="text">' + item.text + '</span>';
+                    html += '<button class="delete-ref-btn" data-date="' + dateKey + '" data-id="' + item.id + '">';
+                    html += '<span class="material-symbols-outlined text-[16px]">close</span>';
+                    html += '</button>';
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+
+                container.querySelectorAll('.delete-ref-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var dateKey = this.dataset.date;
+                        var id = parseFloat(this.dataset.id);
+                        deleteReflection(dateKey, id);
+                    });
+                });
+            }
+
+            // 日历切换
+            document.getElementById('calendar-prev').addEventListener('click', function() {
+                calendarMonth--;
+                if (calendarMonth < 0) {
+                    calendarMonth = 11;
+                    calendarYear--;
+                }
+                renderCalendar();
+                // 保持选中的日期高亮（如果有）
+                if (selectedCalendarDate) {
+                    var cell = document.querySelector('.day-cell[data-date="' + selectedCalendarDate + '"]');
+                    if (cell) cell.click();
+                }
+            });
+            document.getElementById('calendar-next').addEventListener('click', function() {
+                calendarMonth++;
+                if (calendarMonth > 11) {
+                    calendarMonth = 0;
+                    calendarYear++;
+                }
+                renderCalendar();
+                if (selectedCalendarDate) {
+                    var cell = document.querySelector('.day-cell[data-date="' + selectedCalendarDate + '"]');
+                    if (cell) cell.click();
+                }
+            });
+
+            // ============================================================
+            // 5. 历史记录（最近7条）
+            // ============================================================
+            function renderHistory() {
+                var container = document.getElementById('reflection-history');
+                if (!container) return;
+                var allEntries = [];
+                Object.keys(reflections).forEach(function(dateKey) {
+                    reflections[dateKey].forEach(function(item) {
+                        allEntries.push({
+                            dateKey: dateKey,
+                            id: item.id,
+                            text: item.text,
+                            timestamp: item.timestamp
+                        });
+                    });
+                });
+                allEntries.sort(function(a, b) { return b.timestamp - a.timestamp; });
+                var latest = allEntries.slice(0, 7);
+                if (latest.length === 0) {
+                    container.innerHTML = '<div class="text-center py-4 text-on-surface-variant/40 text-sm">还没有反思记录 📝</div>';
+                    return;
+                }
+                var html = '';
+                latest.forEach(function(item) {
+                    var dateDisplay = item.dateKey;
+                    var timeStr = formatTime(item.timestamp);
+                    html += '<div class="reflection-entry" style="border-left-color:#4edea3;">';
+                    html += '<span class="time">' + dateDisplay + ' ' + timeStr + '</span>';
+                    html += '<span class="text">' + item.text + '</span>';
+                    html += '<button class="delete-ref-btn" data-date="' + item.dateKey + '" data-id="' + item.id + '">';
+                    html += '<span class="material-symbols-outlined text-[16px]">close</span>';
+                    html += '</button>';
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+
+                container.querySelectorAll('.delete-ref-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var dateKey = this.dataset.date;
+                        var id = parseFloat(this.dataset.id);
+                        deleteReflection(dateKey, id);
+                    });
+                });
+            }
+
+            // ============================================================
+            // 6. 反思渲染总入口
+            // ============================================================
+            function renderReflections() {
+                // 这里不需要额外渲染，因为日历和历史已经实时更新
+                // 但用于确保一致性
+            }
+
+            // ============================================================
+            // 7. Tab 切换（保持）
             // ============================================================
             document.querySelectorAll('.tab-btn').forEach(function(btn) {
                 btn.addEventListener('click', function() {
@@ -664,7 +959,7 @@
             });
 
             // ============================================================
-            // 8. 每日一句 + 反思
+            // 8. 每日一句（保持）
             // ============================================================
             var quotes = [
                 { text: "生命不是要超越别人，而是要超越自己。", author: "德鲁克" },
@@ -706,75 +1001,64 @@
                 weekday: 'long'
             });
 
-            var todayKey = new Date().toISOString().split('T')[0];
-            var allReflections = TV.storage.get('lifeReflections', {});
-            var reflectionInput = document.getElementById('reflection-input');
-            var saveHint = document.getElementById('reflection-saved-hint');
-            var historyContainer = document.getElementById('reflection-history');
-
-            if (allReflections[todayKey]) {
-                reflectionInput.value = allReflections[todayKey];
-                saveHint.classList.remove('hidden');
-                setTimeout(function() { saveHint.classList.add('hidden'); }, 2000);
-            }
-
-            document.getElementById('save-reflection-btn').addEventListener('click', function() {
-                var text = reflectionInput.value.trim();
-                if (!text) {
-                    delete allReflections[todayKey];
-                    TV.storage.set('lifeReflections', allReflections);
-                    saveHint.textContent = '🗑️ 已删除';
-                    saveHint.classList.remove('hidden');
-                    setTimeout(function() { saveHint.classList.add('hidden'); }, 1500);
-                    renderHistory();
+            // ============================================================
+            // 9. 手动添加里程碑（输入框按钮）
+            // ============================================================
+            document.getElementById('add-milestone-btn').addEventListener('click', async function() {
+                var nameInput = document.getElementById('milestone-input');
+                var ageInput = document.getElementById('milestone-age-input');
+                var name = nameInput.value.trim();
+                var age = parseFloat(ageInput.value);
+                if (!name) {
+                    await showAlert('提示', '请输入里程碑名称');
+                    nameInput.focus();
                     return;
                 }
-                allReflections[todayKey] = text;
-                TV.storage.set('lifeReflections', allReflections);
-                saveHint.textContent = '✅ 已保存';
-                saveHint.classList.remove('hidden');
-                setTimeout(function() { saveHint.classList.add('hidden'); }, 1500);
-                renderHistory();
+                if (isNaN(age) || age <= 0) {
+                    await showAlert('提示', '请输入有效的目标年龄');
+                    ageInput.focus();
+                    return;
+                }
+                var weekIndex = Math.floor(age * WEEKS_PER_YEAR);
+                var existing = milestones.find(function(m) { return Math.abs(m.weekIndex - weekIndex) < 1; });
+                if (existing) {
+                    await showAlert('提示', '该年龄已存在里程碑：「' + existing.name + '」');
+                    return;
+                }
+                var newMilestone = {
+                    id: Date.now() + Math.random() * 1000,
+                    name: name,
+                    weekIndex: weekIndex,
+                    age: age,
+                    createdAt: new Date().toISOString()
+                };
+                milestones.push(newMilestone);
+                saveMilestones();
+                renderGrid();
+                renderMilestones();
+                nameInput.value = '';
+                ageInput.value = '';
+                await showAlert('✅ 已添加', '里程碑「' + name + '」已添加到 ' + age + ' 岁');
             });
 
-            function renderHistory() {
-                var keys = Object.keys(allReflections).sort().reverse();
-                if (keys.length === 0) {
-                    historyContainer.innerHTML = '<div class="text-center py-4 text-on-surface-variant/40 text-sm">还没有反思记录 📝</div>';
-                    return;
-                }
-                var html = '';
-                var count = 0;
-                keys.forEach(function(key) {
-                    if (count >= 7) return;
-                    var text = allReflections[key];
-                    if (!text || text.trim() === '') return;
-                    var date = new Date(key + 'T00:00:00');
-                    var dateStr = date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
-                    html += '<div class="bg-surface-container-lowest rounded-xl p-3 text-sm">';
-                    html += '<div class="flex justify-between items-start">';
-                    html += '<span class="text-on-surface-variant/50 text-xs">' + dateStr + '</span>';
-                    html += '</div>';
-                    html += '<p class="text-on-surface mt-1 leading-relaxed line-clamp-2">' + text + '</p>';
-                    html += '</div>';
-                    count++;
-                });
-                if (!html) {
-                    html = '<div class="text-center py-4 text-on-surface-variant/40 text-sm">还没有反思记录 📝</div>';
-                }
-                historyContainer.innerHTML = html;
-            }
-            renderHistory();
+            document.getElementById('milestone-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') document.getElementById('add-milestone-btn').click();
+            });
+            document.getElementById('milestone-age-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') document.getElementById('add-milestone-btn').click();
+            });
 
             // ============================================================
-            // 9. 初始化渲染
+            // 10. 初始化
             // ============================================================
             renderGrid();
             renderMilestones();
+            // 初始化日历为当前月份
+            var nowDate = new Date();
+            initCalendar(nowDate.getFullYear(), nowDate.getMonth());
+            renderHistory();
 
-            // ============================================================
-            // 10. 每分钟刷新时间相关的进度
-            // ============================================================
+            // 每分钟刷新时钟
             setInterval(function() {
                 updateClock();
             }, 60000);
