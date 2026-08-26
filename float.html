@@ -44,22 +44,36 @@
         }
 
         .amount {
-            font-size: 48px;
+            font-size: 52px;
             font-weight: 700;
             color: #ffffff;
             letter-spacing: -0.02em;
             line-height: 1.1;
             text-shadow: 0 2px 20px rgba(78, 222, 163, 0.15);
-            transition: transform 0.15s ease;
+            transition: transform 0.1s ease;
         }
+        /* 🆕 跳动幅度加大：从 1.02 → 1.10，并且增加颜色变化 */
         .amount.pulse {
-            animation: subtle-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: big-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes subtle-pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+        @keyframes big-pop {
+            0% {
+                transform: scale(1);
+                color: #ffffff;
+            }
+            30% {
+                transform: scale(1.10);
+                color: #6ffbbe;
+            }
+            60% {
+                transform: scale(0.97);
+                color: #ffffff;
+            }
+            100% {
+                transform: scale(1);
+                color: #ffffff;
+            }
         }
 
         .status {
@@ -83,7 +97,6 @@
         .dot.off { background: #9e9e9e; }
         .dot.waiting { background: #ffb74d; box-shadow: 0 0 12px rgba(255, 183, 77, 0.4); }
 
-        /* 极简拖拽提示（仅桌面） */
         .drag-hint {
             position: absolute;
             bottom: 6px;
@@ -94,7 +107,6 @@
             pointer-events: none;
         }
 
-        /* 右上角关闭按钮（隐形，仅悬停显示） */
         .close-btn {
             position: absolute;
             top: 8px;
@@ -218,11 +230,10 @@
                 const earned = getTodayEarnings();
                 const status = getStatus();
 
-                // 数字变化时触发动画
-                if (Math.abs(earned - lastAmount) > 0.005) {
+                // 🆕 阈值调低，让跳动更频繁（只要变化超过 0.001 元就触发）
+                if (Math.abs(earned - lastAmount) > 0.001) {
                     amountEl.classList.remove('pulse');
-                    // 强制重绘触发动画
-                    void amountEl.offsetWidth;
+                    void amountEl.offsetWidth; // 强制重绘
                     amountEl.classList.add('pulse');
                     lastAmount = earned;
                 }
@@ -236,10 +247,9 @@
             // 首次更新
             update();
 
-            // 每秒刷新
-            setInterval(update, 1000);
+            // 🆕 更新频率加快：每 500ms 刷新一次（原 1000ms），跳动更密集
+            setInterval(update, 500);
 
-            // 当 localStorage 在其他标签页被修改时，同步更新
             window.addEventListener('storage', function(e) {
                 if (e.key === 'timeValueData') {
                     update();
