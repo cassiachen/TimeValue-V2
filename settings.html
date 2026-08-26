@@ -8,6 +8,7 @@
     </script>
     <script src="shared/storage.js"></script>
     <script src="shared/toast.js"></script>
+    <script src="shared/modal.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet" />
     <script src="shared/tailwind-config.js"></script>
@@ -216,8 +217,6 @@
     </main>
 
     <script>
-        // Toast 通知统一由 shared/toast.js 提供的 window.showToast 处理，这里不再重复实现。
-
         // ============================================================
         // 1. 加载已有数据
         // ============================================================
@@ -272,6 +271,7 @@
             function validateAndCollect() {
                 clearAllFieldErrors();
                 var firstInvalidId = null;
+
                 function fail(id, message) {
                     setFieldError(id, message);
                     if (!firstInvalidId) firstInvalidId = id;
@@ -500,7 +500,7 @@
                 showToast('✅ 摘要已导出', 'success');
             });
 
-            // 导入 JSON
+            // 导入 JSON（🆕 使用 showConfirm）
             document.getElementById('import-json-btn').addEventListener('click', function() {
                 document.getElementById('import-file-input').click();
             });
@@ -510,7 +510,7 @@
                 if (!file) return;
 
                 var reader = new FileReader();
-                reader.onload = function(ev) {
+                reader.onload = async function(ev) {
                     try {
                         var data = JSON.parse(ev.target.result);
 
@@ -520,8 +520,8 @@
                             return;
                         }
 
-                        // 确认覆盖
-                        if (!confirm('⚠️ 导入将覆盖所有现有数据，确定继续吗？')) {
+                        // 确认覆盖（🆕 使用 showConfirm）
+                        if (!await showConfirm('导入确认', '⚠️ 导入将覆盖所有现有数据，确定继续吗？')) {
                             return;
                         }
 
