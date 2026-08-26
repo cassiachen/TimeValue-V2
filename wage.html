@@ -458,29 +458,28 @@
     </nav>
 
     <script>
-        // ============================================================
-        // 0. 打开悬浮窗
-        // ============================================================
-        function openFloatWindow() {
-            var width = 340;
-            var height = 160;
-            var left = (window.screen.availWidth - width) / 2;
-            var top = (window.screen.availHeight - height) / 2;
+       // ============================================================
+// 0. 打开悬浮窗
+// ============================================================
+async function openFloatWindow() {
+    var width = 340;
+    var height = 160;
+    var left = (window.screen.availWidth - width) / 2;
+    var top = (window.screen.availHeight - height) / 2;
 
-            var floatWin = window.open(
-                'float.html',
-                'TimeValueFloat',
-                'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top +
-                ',menubar=no,toolbar=no,location=no,status=no,resizable=yes'
-            );
+    var floatWin = window.open(
+        'float.html',
+        'TimeValueFloat',
+        'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top +
+        ',menubar=no,toolbar=no,location=no,status=no,resizable=yes'
+    );
 
-            if (!floatWin || floatWin.closed || typeof floatWin.closed === 'undefined') {
-                await showAlert('⚠️ 提示', '浏览器拦截了悬浮窗，请允许弹出窗口后重试。\n或按住 Ctrl 键点击按钮。');
-            } else {
-                floatWin.focus();
-            }
-        }
-
+    if (!floatWin || floatWin.closed || typeof floatWin.closed === 'undefined') {
+        await showAlert('⚠️ 提示', '浏览器拦截了悬浮窗，请允许弹出窗口后重试。\n或按住 Ctrl 键点击按钮。');
+    } else {
+        floatWin.focus();
+    }
+}
         // ============================================================
         // 1. DOM 加载
         // ============================================================
