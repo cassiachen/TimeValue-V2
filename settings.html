@@ -469,19 +469,44 @@
                     summary += '\n';
                 }
 
-                // 7. 每日反思
-                var reflections = data.lifeReflections || {};
-                var refKeys = Object.keys(reflections).sort();
-                if (refKeys.length > 0) {
-                    summary += '【每日反思】\n';
-                    var recentRefs = refKeys.slice(-7);
-                    recentRefs.forEach(function(key) {
-                        var text = reflections[key] || '';
-                        if (text.length > 30) text = text.substring(0, 30) + '...';
-                        summary += '  ' + key + '：' + text + '\n';
-                    });
-                    summary += '  共 ' + refKeys.length + ' 篇反思\n\n';
-                }
+                // 7. 每日反思（兼容新旧两种格式）
+var reflectionsV2 = data.lifeReflectionsV2 || {};
+var reflectionsOld = data.lifeReflections || {};
+var allRefEntries = [];
+
+// 处理新格式 (lifeReflectionsV2) - 一天多条记录
+Object.keys(reflectionsV2).forEach(function(key) {
+    if (Array.isArray(reflectionsV2[key]) && reflectionsV2[key].length > 0) {
+        // 提取所有文本，用分号隔开
+        var texts = reflectionsV2[key].map(function(item) { return item.text; }).join('; ');
+        allRefEntries.push({ date: key, text: texts });
+    }
+});
+
+// 处理旧格式 (lifeReflections) - 一天一条记录（兼容）
+Object.keys(reflectionsOld).forEach(function(key) {
+    // 如果新格式里没有这一天，才添加旧格式的数据（避免重复）
+    if (!reflectionsV2[key]) {
+        var text = reflectionsOld[key] || '';
+        if (text) {
+            allRefEntries.push({ date: key, text: text });
+        }
+    }
+});
+
+// 按日期排序（最新的在前）
+allRefEntries.sort(function(a, b) { return b.date.localeCompare(a.date); });
+
+if (allRefEntries.length > 0) {
+    summary += '【每日反思】\n';
+    var recentRefs = allRefEntries.slice(0, 7);
+    recentRefs.forEach(function(entry) {
+        var text = entry.text;
+        if (text.length > 40) text = text.substring(0, 40) + '...';
+        summary += '  ' + entry.date + '：' + text + '\n';
+    });
+    summary += '  共 ' + allRefEntries.length + ' 天有反思记录\n\n';
+}
 
                 summary += '═══════════════════════════════════════════\n';
                 summary += '  数据备份于 ' + new Date().toLocaleString() + '\n';
