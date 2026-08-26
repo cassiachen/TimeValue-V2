@@ -124,7 +124,6 @@
             opacity: 0.3;
         }
 
-        /* 🆕 主页面数字跳动幅度也加大 */
         @keyframes big-number-pop {
             0% {
                 transform: scale(1);
@@ -175,6 +174,23 @@
             animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
+        /* 连续打卡徽章 */
+        .streak-badge {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 12px 2px 8px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 12px rgba(255, 69, 0, 0.3);
+        }
+        .streak-badge .material-symbols-outlined {
+            font-size: 14px;
+        }
+
         .pb-safe {
             padding-bottom: env(safe-area-inset-bottom, 24px);
         }
@@ -182,7 +198,6 @@
             padding-top: env(safe-area-inset-top, 24px);
         }
 
-        /* 学习加薪弹窗 */
         .bonus-detail-popup {
             position: absolute;
             bottom: calc(100% + 8px);
@@ -258,6 +273,57 @@
             font-size: 14px;
         }
 
+        /* 🆕 学习加薪联动横幅 */
+        .learning-impact-banner {
+            background: linear-gradient(135deg, #e6f9ed 0%, #f0fdf4 100%);
+            border: 1px solid #4edea3;
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .learning-impact-banner .left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .learning-impact-banner .icon-wrap {
+            background: #4edea3;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .learning-impact-banner .icon-wrap .material-symbols-outlined {
+            font-size: 18px;
+            color: #005236;
+        }
+        .learning-impact-banner .text {
+            font-size: 13px;
+            color: #005236;
+            font-weight: 500;
+        }
+        .learning-impact-banner .text .highlight {
+            font-weight: 700;
+            color: #009869;
+            font-size: 15px;
+        }
+        .learning-impact-banner .badge {
+            background: #4edea3;
+            color: #005236;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 999px;
+            flex-shrink: 0;
+        }
+
         .guide-banner {
             display: flex;
             align-items: center;
@@ -314,7 +380,6 @@
             flex-shrink: 0;
         }
 
-        /* 悬浮窗按钮的呼吸提示 */
         .float-btn {
             position: relative;
         }
@@ -354,7 +419,7 @@
         <!-- 中间：标题 -->
         <h1 class="font-headline-md text-headline-md-mobile font-bold tracking-tight text-primary absolute left-1/2 -translate-x-1/2">时值 TimeValue</h1>
 
-        <!-- 右侧：悬浮窗按钮 🆕 -->
+        <!-- 右侧：悬浮窗按钮 -->
         <button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-95 duration-200 float-btn" onclick="openFloatWindow()" title="悬浮显示今日收入">
             <span class="material-symbols-outlined">picture_in_picture_alt</span>
             <span class="pulse-ring"></span>
@@ -363,11 +428,16 @@
 
     <main class="flex-1 px-margin-page flex flex-col gap-5 mt-6 max-w-md mx-auto w-full">
 
-        <!-- ===== 顶部：今日已赚 + 状态 ===== -->
+        <!-- ===== 顶部：今日已赚 + 状态 + 🆕 打卡徽章 ===== -->
         <section class="flex flex-col items-center pt-3 pb-1">
-            <div class="flex items-center gap-3 mb-2">
+            <div class="flex items-center gap-3 mb-2 flex-wrap justify-center">
                 <span class="text-on-surface-variant font-label-sm text-label-sm tracking-widest">今日已赚</span>
                 <span class="status-tag working" id="status-tag">⏳ 工作中</span>
+                <!-- 🆕 连续打卡徽章 -->
+                <span class="streak-badge" id="streak-badge">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1;">local_fire_department</span>
+                    连续 <span id="streak-count">0</span> 天
+                </span>
             </div>
             <div class="flex items-baseline gap-1 roll-in">
                 <span class="font-headline-md text-headline-md text-primary translate-y-[-6px]">¥</span>
@@ -379,7 +449,7 @@
             </div>
         </section>
 
-        <!-- ===== 昨日收入 + 时薪（并排卡片） ===== -->
+        <!-- ===== 昨日收入 + 时薪 ===== -->
         <section class="grid grid-cols-2 gap-3">
             <div class="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center">
                 <span class="text-on-surface-variant font-label-sm text-label-sm">昨日收入</span>
@@ -407,6 +477,19 @@
                 </div>
             </div>
         </section>
+
+        <!-- ===== 🆕 学习加薪联动横幅 ===== -->
+        <div class="learning-impact-banner" id="learning-impact-banner" style="display:none;">
+            <div class="left">
+                <div class="icon-wrap">
+                    <span class="material-symbols-outlined">school</span>
+                </div>
+                <span class="text">
+                    🎓 学习已为你带来 <span class="highlight" id="learning-impact-amount">+¥0.00</span> 元/小时的加薪
+                </span>
+            </div>
+            <span class="badge">继续学习 →</span>
+        </div>
 
         <!-- ===== 引导横幅 ===== -->
         <div class="guide-banner" id="learn-guide-btn">
@@ -499,7 +582,7 @@
 
     <script>
         // ============================================================
-        // 0. 打开悬浮窗（独立于 DOMContentLoaded，便于内联调用）
+        // 0. 打开悬浮窗
         // ============================================================
         function openFloatWindow() {
             var width = 340;
@@ -527,7 +610,57 @@
         document.addEventListener('DOMContentLoaded', function() {
 
             // ============================================================
-            // 2. 读取数据
+            // 🆕 2. 连续打卡系统
+            // ============================================================
+            function getTodayKey() {
+                var d = new Date();
+                return d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+            }
+
+            function getYesterdayKey() {
+                var d = new Date();
+                d.setDate(d.getDate() - 1);
+                return d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+            }
+
+            function updateStreak() {
+                var today = getTodayKey();
+                var streakData = localStorage.getItem('appStreak');
+                var streak = streakData ? JSON.parse(streakData) : { lastDate: null, count: 0 };
+
+                // 如果今天已经打卡，直接返回当前计数
+                if (streak.lastDate === today) {
+                    return streak.count;
+                }
+
+                var yesterday = getYesterdayKey();
+
+                if (streak.lastDate === yesterday) {
+                    // 连续打卡
+                    streak.count += 1;
+                } else if (streak.lastDate === null) {
+                    // 首次打卡
+                    streak.count = 1;
+                } else {
+                    // 中断了，重置
+                    streak.count = 1;
+                }
+
+                streak.lastDate = today;
+                localStorage.setItem('appStreak', JSON.stringify(streak));
+                return streak.count;
+            }
+
+            // 执行打卡并获取天数
+            var streakCount = updateStreak();
+            document.getElementById('streak-count').textContent = streakCount;
+
+            // ============================================================
+            // 3. 读取数据
             // ============================================================
             var data = null;
             var saved = localStorage.getItem('timeValueData');
@@ -545,7 +678,7 @@
             var secondWageVal = baseHourlyWage / 3600;
 
             // ============================================================
-            // 3. 学习加薪
+            // 4. 学习加薪
             // ============================================================
             var learningBonus = 0;
             var completedGoals = [];
@@ -562,7 +695,7 @@
             }
 
             // ============================================================
-            // 4. 学习加薪标签
+            // 5. 学习加薪标签
             // ============================================================
             var bonusWrapper = document.getElementById('bonus-tag-wrapper');
             var bonusTagText = document.getElementById('bonus-tag-text');
@@ -596,7 +729,25 @@
             }
 
             // ============================================================
-            // 5. 引导横幅
+            // 🆕 6. 学习加薪联动横幅
+            // ============================================================
+            var impactBanner = document.getElementById('learning-impact-banner');
+            var impactAmount = document.getElementById('learning-impact-amount');
+
+            if (learningBonus > 0) {
+                impactBanner.style.display = 'flex';
+                impactAmount.textContent = '+¥' + learningBonus.toFixed(2);
+                // 点击横幅跳转到学习页面
+                impactBanner.addEventListener('click', function() {
+                    window.location.href = 'learn.html';
+                });
+                impactBanner.style.cursor = 'pointer';
+            } else {
+                impactBanner.style.display = 'none';
+            }
+
+            // ============================================================
+            // 7. 引导横幅
             // ============================================================
             var guideTitle = document.getElementById('guide-title');
             var guideDesc = document.getElementById('guide-desc');
@@ -617,7 +768,7 @@
             });
 
             // ============================================================
-            // 6. 核心逻辑
+            // 8. 核心逻辑
             // ============================================================
             var workStart = data && data.workStart ? data.workStart : '09:00';
             var workEnd = data && data.workEnd ? data.workEnd : '18:00';
@@ -706,7 +857,7 @@
             yesterdayEarningsEl.textContent = '¥' + getYesterdayEarnings().toFixed(2);
 
             // ============================================================
-            // 7. 更新函数（含大跳动动画）
+            // 9. 更新函数
             // ============================================================
             var lastDayKey = getTodayKey();
             var isTodayDone = false;
@@ -722,7 +873,6 @@
 
             function triggerNumberPop() {
                 heroCounter.classList.remove('number-pop');
-                // 强制重绘
                 void heroCounter.offsetWidth;
                 heroCounter.classList.add('number-pop');
             }
@@ -732,7 +882,6 @@
                 var todayKey = getTodayKey();
                 var currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
-                // 跨天检测
                 if (todayKey !== lastDayKey) {
                     lastDayKey = todayKey;
                     isTodayDone = false;
@@ -816,7 +965,6 @@
                     }
                 }
 
-                // 🆕 数字变化时触发大跳动动画（阈值 0.005 元）
                 if (Math.abs(earnedToday - lastEarnedValue) > 0.005) {
                     triggerNumberPop();
                     lastEarnedValue = earnedToday;
@@ -833,14 +981,11 @@
             }
 
             // ============================================================
-            // 8. 启动定时器
+            // 10. 启动定时器
             // ============================================================
             update();
-
-            // 🆕 更新频率加快：每 500ms 刷新一次，跳动更密集
             setInterval(update, 500);
 
-            // 每分钟检查跨天
             setInterval(function() {
                 var today = getTodayKey();
                 if (today !== lastDayKey) {
@@ -849,7 +994,6 @@
                 }
             }, 60000);
 
-            // 页面可见性变化时刷新
             document.addEventListener('visibilitychange', function() {
                 if (!document.hidden) {
                     var freshData = localStorage.getItem('timeValueData');
