@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+    <title>新手教程 - 时值 TimeValue</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="shared/storage.js"></script>
+    <script src="shared/toast.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="shared/tailwind-config.js"></script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+        .pt-safe { padding-top: env(safe-area-inset-top, 24px); }
+
+        /* 步骤切换：横向滑动 */
+        #slides {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }
+        .slide {
+            flex: 0 0 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;
+            text-align: center;
+        }
+        .icon-badge {
+            width: 96px;
+            height: 96px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 9999px;
+            background: #e2e2e4;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dot.active {
+            width: 24px;
+            background: #030304;
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface h-screen w-full flex flex-col overflow-hidden antialiased">
+
+    <!-- TopAppBar：进度点 + 跳过 -->
+    <header class="w-full flex-none flex items-center justify-between px-margin-page pt-safe h-16">
+        <div class="flex items-center gap-2" id="dots"></div>
+        <button class="font-label-sm text-label-sm text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-200" id="skip-btn">
+            跳过
+        </button>
+    </header>
+
+    <!-- 步骤内容 -->
+    <main class="flex-1 w-full overflow-hidden">
+        <div id="slides">
+            <!-- Slide 0: 欢迎 -->
+            <div class="slide">
+                <div class="icon-badge bg-primary-container fade-in-up">
+                    <span class="material-symbols-outlined text-[44px] text-inverse-on-surface">waving_hand</span>
+                </div>
+                <h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight mb-stack-sm fade-in-up" style="animation-delay:80ms">
+                    欢迎使用时值 TimeValue
+                </h1>
+                <p class="font-body-md text-body-md text-on-surface-variant max-w-[280px] fade-in-up" style="animation-delay:160ms">
+                    只需 1 分钟，带你认识 4 个核心功能，看见时间，也看见价值。
+                </p>
+            </div>
+
+            <!-- Slide 1: 今日工资 -->
+            <div class="slide">
+                <div class="icon-badge bg-tertiary-container fade-in-up">
+                    <span class="material-symbols-outlined text-[44px] text-[#6ffbbe]" style="font-variation-settings:'FILL' 1;">payments</span>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-primary mb-stack-sm fade-in-up" style="animation-delay:80ms">今日工资</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant max-w-[280px] fade-in-up" style="animation-delay:160ms">
+                    实时看着自己的工资一分一秒地"赚"出来，还能看到本周收入、消费和学习的小报告。
+                </p>
+            </div>
+
+            <!-- Slide 2: 学习涨薪 -->
+            <div class="slide">
+                <div class="icon-badge bg-primary-container fade-in-up">
+                    <span class="material-symbols-outlined text-[44px] text-inverse-on-surface" style="font-variation-settings:'FILL' 1;">school</span>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-primary mb-stack-sm fade-in-up" style="animation-delay:80ms">学习涨薪</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant max-w-[280px] fade-in-up" style="animation-delay:160ms">
+                    设定学习目标、专注计时，把投资自己的时间也换算成看得见的"加薪"。
+                </p>
+            </div>
+
+            <!-- Slide 3: 时间消费 -->
+            <div class="slide">
+                <div class="icon-badge bg-secondary-container fade-in-up">
+                    <span class="material-symbols-outlined text-[44px] text-primary" style="font-variation-settings:'FILL' 1;">schedule</span>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-primary mb-stack-sm fade-in-up" style="animation-delay:80ms">时间消费</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant max-w-[280px] fade-in-up" style="animation-delay:160ms">
+                    任何一笔花销，都能立刻换算成"值多少工作时长"，花钱之前先看清代价。
+                </p>
+            </div>
+
+            <!-- Slide 4: 人生剩余 -->
+            <div class="slide">
+                <div class="icon-badge bg-primary-container fade-in-up">
+                    <span class="material-symbols-outlined text-[44px] text-inverse-on-surface" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-primary mb-stack-sm fade-in-up" style="animation-delay:80ms">人生剩余</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant max-w-[280px] fade-in-up" style="animation-delay:160ms">
+                    拉远一点看，记录人生里的重要时刻，提醒自己时间花在真正重要的事情上。
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部按钮 -->
+    <div class="w-full flex-none px-margin-page pb-10 pt-6">
+        <button class="w-full h-[52px] bg-primary-container text-on-primary rounded-[16px] font-body-lg text-body-lg font-medium tracking-wide flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all duration-200 ease-out shadow-[0_10px_30px_rgba(0,0,0,0.08)]" id="next-btn">
+            下一步
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var TOTAL = document.querySelectorAll('.slide').length;
+            var current = 0;
+            var slidesEl = document.getElementById('slides');
+            var dotsEl = document.getElementById('dots');
+            var nextBtn = document.getElementById('next-btn');
+            var skipBtn = document.getElementById('skip-btn');
+
+            // 渲染进度点
+            for (var i = 0; i < TOTAL; i++) {
+                var d = document.createElement('div');
+                d.className = 'dot' + (i === 0 ? ' active' : '');
+                dotsEl.appendChild(d);
+            }
+
+            function render() {
+                slidesEl.style.transform = 'translateX(-' + (current * 100) + '%)';
+                Array.prototype.forEach.call(dotsEl.children, function (d, i) {
+                    d.classList.toggle('active', i === current);
+                });
+                nextBtn.textContent = (current === TOTAL - 1) ? '开始使用' : '下一步';
+                skipBtn.style.visibility = (current === TOTAL - 1) ? 'hidden' : 'visible';
+                // 重新触发文字的 fade-in 动画
+                var activeSlide = slidesEl.children[current];
+                activeSlide.querySelectorAll('.fade-in-up').forEach(function (el) {
+                    el.style.animation = 'none';
+                    // 强制 reflow 后重新应用动画
+                    void el.offsetWidth;
+                    el.style.animation = '';
+                });
+            }
+
+            function finish() {
+                TV.storage.set('onboardingSeen', true);
+                window.location.href = 'wage.html';
+            }
+
+            nextBtn.addEventListener('click', function () {
+                if (current === TOTAL - 1) {
+                    finish();
+                    return;
+                }
+                current++;
+                render();
+            });
+
+            skipBtn.addEventListener('click', finish);
+
+            // 支持左右滑动切换
+            var touchStartX = null;
+            slidesEl.addEventListener('touchstart', function (e) {
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+            slidesEl.addEventListener('touchend', function (e) {
+                if (touchStartX === null) return;
+                var dx = e.changedTouches[0].clientX - touchStartX;
+                if (Math.abs(dx) > 40) {
+                    if (dx < 0 && current < TOTAL - 1) { current++; render(); }
+                    else if (dx > 0 && current > 0) { current--; render(); }
+                }
+                touchStartX = null;
+            }, { passive: true });
+
+            render();
+        });
+    </script>
+</body>
+</html>
