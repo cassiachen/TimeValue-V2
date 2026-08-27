@@ -181,6 +181,18 @@
         </section>
 
         <!-- ============================================================
+        🆕 新手教程入口
+        ============================================================ -->
+        <section class="mt-stack-lg pt-4 border-t border-surface-variant/30">
+            <button class="w-full flex items-center justify-between py-2 group" id="open-onboarding-btn" type="button">
+                <span class="font-headline-md text-headline-md text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined">school</span> 使用教程
+                </span>
+                <span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+            </button>
+        </section>
+
+        <!-- ============================================================
         🆕 本地备份
         ============================================================ -->
         <section class="mt-stack-lg pt-4 border-t border-surface-variant/30">
@@ -222,6 +234,7 @@
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             var data = TV.storage.get('timeValueData', null);
+            var isFirstRun = !data; // 保存前是否还没有基准线数据，决定保存后是否需要过一遍新手教程
             if (data) {
                 document.getElementById('monthlySalary').value = data.monthlySalary || '';
                 document.getElementById('workDays').value = data.workDays || '22';
@@ -345,8 +358,22 @@
                 if (!result.valid) return;
 
                 TV.storage.set('timeValueData', result.data);
+
+                // 首次完成设置且还没看过新手教程时，先走一遍教程再进首页
+                var onboardingSeen = TV.storage.get('onboardingSeen', false);
+                if (isFirstRun && !onboardingSeen) {
+                    window.location.href = 'onboarding.html';
+                    return;
+                }
                 window.location.href = 'wage.html';
             });
+
+            var openOnboardingBtn = document.getElementById('open-onboarding-btn');
+            if (openOnboardingBtn) {
+                openOnboardingBtn.addEventListener('click', function() {
+                    window.location.href = 'onboarding.html';
+                });
+            }
 
             // ============================================================
             // 🆕 4. 本地备份功能
