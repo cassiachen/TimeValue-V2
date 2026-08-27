@@ -193,13 +193,16 @@
         };
     }
 })();
+        // ============================================================
+    // 🆕 自动加载新手指引（首次打开时显示一次，介绍四个页面）
     // ============================================================
-    // 🆕 自动加载新手指引（不修改任何页面代码）
-    // ============================================================
-    // 延迟加载，确保页面其他内容先渲染
-    setTimeout(function () {
-        var script = document.createElement('script');
-        script.src = 'shared/onboarding.js';
-        script.async = true;
-        document.head.appendChild(script);
-    }, 800);
+    // 检查是否已看过
+    if (!localStorage.getItem('guide_seen')) {
+        // 延迟加载，确保页面先渲染
+        setTimeout(function () {
+            var script = document.createElement('script');
+            script.src = 'shared/onboarding.js';
+            script.async = true;
+            document.head.appendChild(script);
+        }, 500);
+    }
