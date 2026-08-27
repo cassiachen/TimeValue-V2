@@ -193,14 +193,4 @@
         };
     }
 })();
-           // ============================================================
-    // 🆕 自动加载聚焦导览
-    // ============================================================
-    if (!localStorage.getItem('tour_seen')) {
-        setTimeout(function () {
-            var script = document.createElement('script');
-            script.src = 'shared/tour.js';
-            script.async = true;
-            document.head.appendChild(script);
-        }, 600);
-    }
+     
