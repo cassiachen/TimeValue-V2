@@ -862,7 +862,9 @@
                     totalStudyHours += g.completedHours || 0;
                 });
 
-                var purchases = TV.storage.get('purchaseHistory', []) || [];
+                // 注意：消费记录保存在 'transactions'（time.html 会自动把旧的 purchaseHistory
+                // 迁移过来），字段是 amount 不是 price，读旧 key/旧字段会导致这里永远统计不到新消费记录。
+                var purchases = TV.storage.get('transactions', []) || [];
                 var spendCount = 0;
                 var spendTotal = 0;
                 purchases.forEach(function(p) {
@@ -870,7 +872,7 @@
                         var d = new Date(p.timestamp);
                         if (d >= start && d <= end) {
                             spendCount++;
-                            spendTotal += p.price || 0;
+                            spendTotal += p.amount || 0;
                         }
                     }
                 });
