@@ -1,0 +1,43 @@
+/* 时值 TimeValue 共享基础样式
+   把每个页面各自复制一份、且已经悄悄跑偏的几处样式收进这一个文件：
+   - 安全区内边距 .pb-safe / .pt-safe（之前 life.html 用的是 20px/0px，其他页是 24px/24px）
+   - Material Symbols 图标的基础字重 .material-symbols-outlined（之前 life.html 是 300，其他页是 400；wage.html 干脆没设置）
+   - 页面进场动画 .fade-in-up / .animate-fade-in-up 及其 delay 修饰类（各页 keyframes 的位移值不完全一致）
+   改一处，全站生效，不用再逐个页面同步。 */
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 24px);
+}
+.pt-safe {
+    padding-top: env(safe-area-inset-top, 24px);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 用于「一次性」进场动画的元素：初始不可见，动画结束保持 opacity:1（forwards） */
+.fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(12px);
+}
+/* 用于「反复触发」场景（比如筛选切换后重新淡入）：不预设初始状态，只定义动画本身 */
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
