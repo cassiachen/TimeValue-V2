@@ -13,55 +13,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="shared/tailwind-config.js"></script>
     <style>
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom, 24px);
-        }
-        .pt-safe {
-            padding-top: env(safe-area-inset-top, 24px);
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+        .pt-safe { padding-top: env(safe-area-inset-top, 24px); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .animate-fade-in-up {
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes pulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.02);
-            }
-        }
-        .timer-running {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .completed-badge {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border-radius: 999px;
-            padding: 2px 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .delete-goal-btn:hover .material-symbols-outlined {
-            font-variation-settings: 'FILL' 1;
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        .timer-running { animation: pulse 1.5s ease-in-out infinite; }
+        .completed-badge { background: #e8f5e9; color: #2e7d32; border-radius: 999px; padding: 2px 12px; font-size: 12px; font-weight: 500; }
+        .delete-goal-btn:hover .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
 
         .progress-bonus-tag {
             background: linear-gradient(135deg, #4edea3 0%, #6ffbbe 100%);
@@ -76,33 +37,37 @@
             box-shadow: 0 4px 16px rgba(78, 222, 163, 0.3);
             transition: all 0.3s ease;
         }
-        .progress-bonus-tag .material-symbols-outlined {
-            font-size: 16px;
-        }
+        .progress-bonus-tag .material-symbols-outlined { font-size: 16px; }
 
-        .ref-hint {
-            font-size: 11px;
-            color: #77767b;
-            background: #f3f3f5;
-            padding: 6px 12px;
-            border-radius: 8px;
-            margin-top: 4px;
-            line-height: 1.5;
+        /* 🆕 本次学习加薪结果提示（短暂显示） */
+        .result-bonus-toast {
+            background: linear-gradient(135deg, #4edea3 0%, #6ffbbe 100%);
+            color: #005236;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 8px 18px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(78, 222, 163, 0.35);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
         }
-        .ref-hint strong {
-            color: #030304;
+        .result-bonus-toast.show {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: none;
         }
+        .result-bonus-toast .material-symbols-outlined { font-size: 20px; }
 
-        /* 加薪数字跳动 */
-        @keyframes bonus-pop {
-            0% { transform: scale(1); }
-            30% { transform: scale(1.12); color: #6ffbbe; }
-            60% { transform: scale(0.95); }
-            100% { transform: scale(1); color: #4edea3; }
-        }
-        .bonus-pop {
-            animation: bonus-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        .ref-hint { font-size: 11px; color: #77767b; background: #f3f3f5; padding: 6px 12px; border-radius: 8px; margin-top: 4px; line-height: 1.5; }
+        .ref-hint strong { color: #030304; }
+
+        @keyframes bonus-pop { 0% { transform: scale(1); } 30% { transform: scale(1.12); color: #6ffbbe; } 60% { transform: scale(0.95); } 100% { transform: scale(1); color: #4edea3; } }
+        .bonus-pop { animation: bonus-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
     </style>
 </head>
 <body class="bg-background text-on-background font-body-lg text-body-lg min-h-screen antialiased flex flex-col">
@@ -112,17 +77,13 @@
         <button class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-surface-container transition-colors active:scale-95 duration-200" onclick="window.location.href='settings.html'">
             <span class="material-symbols-outlined text-primary text-[24px]">menu</span>
         </button>
-        <h1 class="font-headline-md text-headline-md-mobile md:text-headline-md font-bold tracking-tight text-primary absolute left-1/2 -translate-x-1/2">
-            时值 TimeValue
-        </h1>
+        <h1 class="font-headline-md text-headline-md-mobile md:text-headline-md font-bold tracking-tight text-primary absolute left-1/2 -translate-x-1/2">学习涨薪</h1>
         <div class="w-10"></div>
     </header>
 
     <main class="flex-1 px-margin-page pt-28 pb-32 flex flex-col gap-stack-lg max-w-md mx-auto w-full">
 
-        <!-- ============================================================
-        1. 累计加薪总额（🆕 按比例实时累积）
-        ============================================================ -->
+        <!-- ===== 1. 累计加薪总额 ===== -->
         <section class="bg-surface-container-low rounded-2xl p-5 flex flex-col items-center animate-fade-in-up">
             <span class="font-label-sm text-label-sm text-on-surface-variant">累计学习加薪</span>
             <div class="flex items-baseline gap-1 mt-1">
@@ -132,9 +93,7 @@
             <p class="font-label-sm text-label-sm text-on-surface-variant opacity-60 mt-1">🎯 学多少，加多少！每分每秒都在涨薪</p>
         </section>
 
-        <!-- ============================================================
-        2. 计时器 / 番茄钟
-        ============================================================ -->
+        <!-- ===== 2. 计时器 / 番茄钟 ===== -->
         <section class="bg-surface-container-low rounded-2xl p-5 flex flex-col items-center gap-4 animate-fade-in-up" style="animation-delay:0.1s;">
 
             <div class="flex items-center gap-2">
@@ -142,10 +101,9 @@
                 <span class="font-label-sm text-label-sm text-on-surface-variant">今日学习计时</span>
             </div>
 
-            <!-- 计时器显示 -->
             <div class="font-display-lg text-display-lg text-primary tabular-nums" id="timer-display">00:00:00</div>
 
-            <!-- 进度加薪标签 -->
+            <!-- 进度加薪标签（计时中实时显示） -->
             <div id="progress-bonus-wrapper" style="display:none;">
                 <span class="progress-bonus-tag" id="progress-bonus-tag">
                     <span class="material-symbols-outlined">trending_up</span>
@@ -153,7 +111,12 @@
                 </span>
             </div>
 
-            <!-- 控制按钮 -->
+            <!-- 🆕 本次学习加薪结果（计时结束后短暂显示） -->
+            <div id="result-bonus-toast" class="result-bonus-toast">
+                <span class="material-symbols-outlined">celebration</span>
+                本次学习 +¥<span id="result-bonus-amount">0.00</span> / 小时
+            </div>
+
             <div class="flex gap-4">
                 <button class="w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-transform shadow-md" id="timer-start-btn">
                     <span class="material-symbols-outlined text-[28px]">play_arrow</span>
@@ -163,7 +126,6 @@
                 </button>
             </div>
 
-            <!-- 目标选择下拉 -->
             <div class="w-full mt-2">
                 <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">选择要记录时长的目标</label>
                 <select class="w-full bg-surface-container-lowest border-0 rounded-xl px-4 py-3 font-body-md text-body-md text-primary focus:ring-0 outline-none" id="timer-goal-select">
@@ -171,21 +133,16 @@
                 </select>
             </div>
 
-            <p class="text-xs text-on-surface-variant/40 text-center mt-1">
-                ⏱️ 点击开始计时，暂停时自动保存
-            </p>
+            <p class="text-xs text-on-surface-variant/40 text-center mt-1">⏱️ 点击开始计时，暂停时自动保存</p>
         </section>
 
-        <!-- ============================================================
-        3. 学习目标列表
-        ============================================================ -->
+        <!-- ===== 3. 学习目标列表 ===== -->
         <section class="flex flex-col gap-stack-md animate-fade-in-up" style="animation-delay:0.2s;">
 
             <div class="flex items-center justify-between">
                 <h3 class="font-headline-md-mobile text-headline-md-mobile text-primary">我的学习目标</h3>
                 <button class="text-primary/70 hover:text-primary transition-colors text-sm flex items-center gap-1" id="btn-add-goal">
-                    <span class="material-symbols-outlined text-[18px]">add_circle</span>
-                    新建
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span> 新建
                 </button>
             </div>
 
@@ -197,38 +154,29 @@
 
     </main>
 
-    <!-- ============================================================
-    底部导航
-    ============================================================ -->
+    <!-- ===== 底部导航 ===== -->
     <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-page py-4 pb-safe bg-surface/95 backdrop-blur-md shadow-[0_-10px_30px_rgba(0,0,0,0.04)] rounded-t-xl">
-
         <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='wage.html'">
             <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">payments</span>
             <span class="font-label-sm text-[11px]">今日工资</span>
         </button>
-
         <button class="flex flex-col items-center justify-center text-primary font-bold transition-colors duration-300 w-16 gap-1" onclick="window.location.href='learn.html'">
             <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1;">school</span>
             <span class="font-label-sm text-[11px]">学习涨薪</span>
         </button>
-
         <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='time.html'">
             <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">schedule</span>
             <span class="font-label-sm text-[11px]">时间消费</span>
         </button>
-
         <button class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors duration-300 w-16 gap-1" onclick="window.location.href='life.html'">
             <span class="material-symbols-outlined" style="font-variation-settings:'FILL'0;">auto_awesome</span>
             <span class="font-label-sm text-[11px]">人生剩余</span>
         </button>
-
     </nav>
 
-    <!-- ============================================================
-    品牌水印
-    ============================================================ -->
+    <!-- ===== 品牌水印 ===== -->
     <div class="text-center py-2 pb-safe">
-        <span class="text-[11px] text-outline/40 tracking-[0.15em] font-light select-none">Made by Cassia</span>
+        <span class="text-[11px] text-outline/40 tracking-[0.15em] font-light select-none">Cassia · 2025</span>
     </div>
 
     <!-- ============================================================
@@ -245,49 +193,38 @@
                 var parsed = TV.storage.get('learningGoals', null);
                 if (Array.isArray(parsed)) return parsed;
                 var defaults = [
-                    { id: Date.now() + 1, skillName: 'Python 编程', targetHours: 20, completedHours: 0, bonus: 5,
-                        isCompleted: false },
-                    { id: Date.now() + 2, skillName: '英语口语', targetHours: 15, completedHours: 0, bonus: 3,
-                        isCompleted: false }
+                    { id: Date.now() + 1, skillName: 'Python 编程', targetHours: 20, completedHours: 0, bonus: 5, isCompleted: false },
+                    { id: Date.now() + 2, skillName: '英语口语', targetHours: 15, completedHours: 0, bonus: 3, isCompleted: false }
                 ];
                 saveGoals(defaults);
                 return defaults;
             }
 
-            function saveGoals(goals) {
-                TV.storage.set('learningGoals', goals);
-            }
+            function saveGoals(goals) { TV.storage.set('learningGoals', goals); }
 
             var goals = loadGoals();
 
             function loadTotalBonus() {
                 var stored = TV.storage.get('learningTotalBonus', null);
                 if (stored) {
-                    try {
-                        return parseFloat(stored) || 0;
-                    } catch (e) {}
+                    try { return parseFloat(stored) || 0; } catch (e) {}
                 }
                 return 0;
             }
 
-            function saveTotalBonus(bonus) {
-                TV.storage.set('learningTotalBonus', String(bonus));
-            }
+            function saveTotalBonus(bonus) { TV.storage.set('learningTotalBonus', String(bonus)); }
 
             // ============================================================
-            // 🆕 核心修改：按比例计算加薪（学多少加多少）
+            // 按比例计算加薪（学多少加多少）
             // ============================================================
             function recalcTotalBonus() {
                 var sum = 0;
                 goals.forEach(function(g) {
                     if (g.targetHours > 0) {
-                        // 已完成进度（最大为1）
                         var progress = Math.min(1, g.completedHours / g.targetHours);
-                        // 按比例获得加薪
                         sum += progress * g.bonus;
                     }
                 });
-                // 保留两位小数，避免浮点误差
                 sum = Math.round(sum * 100) / 100;
                 saveTotalBonus(sum);
                 return sum;
@@ -309,9 +246,7 @@
                 return { seconds: 0, isRunning: false, selectedGoalIndex: null, lastUpdateTime: null };
             }
 
-            function saveTimerState(state) {
-                TV.storage.set(TIMER_STATE_KEY, state);
-            }
+            function saveTimerState(state) { TV.storage.set(TIMER_STATE_KEY, state); }
 
             var timerState = loadTimerState();
             var timerSeconds = timerState.seconds || 0;
@@ -325,6 +260,20 @@
             var goalSelect = document.getElementById('timer-goal-select');
             var progressBonusWrapper = document.getElementById('progress-bonus-wrapper');
             var progressBonusAmount = document.getElementById('progress-bonus-amount');
+
+            // 🆕 结果加薪提示
+            var resultToast = document.getElementById('result-bonus-toast');
+            var resultBonusAmount = document.getElementById('result-bonus-amount');
+            var resultToastTimer = null;
+
+            function showResultBonus(amount) {
+                if (resultToastTimer) clearTimeout(resultToastTimer);
+                resultBonusAmount.textContent = amount.toFixed(2);
+                resultToast.classList.add('show');
+                resultToastTimer = setTimeout(function() {
+                    resultToast.classList.remove('show');
+                }, 4000);
+            }
 
             function formatTime(sec) {
                 var h = String(Math.floor(sec / 3600)).padStart(2, '0');
@@ -348,7 +297,6 @@
                     var goal = goals[selectedGoalIndex];
                     if (goal && !goal.isCompleted && goal.targetHours > 0) {
                         var hoursSoFar = timerSeconds / 3600;
-                        // 本次计时已赚取 = (当前计时时长 / 目标总时长) × 目标加薪
                         var earnedBonus = (hoursSoFar / goal.targetHours) * goal.bonus;
                         earnedBonus = Math.min(earnedBonus, goal.bonus);
                         if (earnedBonus > 0.0001) {
@@ -409,7 +357,7 @@
                 if (timerSeconds > 0) {
                     var shouldSave = await showConfirm('保存学习', '⏱️ 已学习 ' + formatTime(timerSeconds) + '\n要保存到目标吗？');
                     if (shouldSave) {
-                        saveTimerToGoal();
+                        await saveTimerToGoal();
                     }
                 }
                 updateTimerDisplay();
@@ -462,9 +410,12 @@
                 }
 
                 var hoursToAdd = timerSeconds / 3600;
+                // 计算本次学习前已获得的加薪
+                var previousEarned = (goal.completedHours / goal.targetHours) * goal.bonus;
+                previousEarned = Math.min(previousEarned, goal.bonus);
+
                 goal.completedHours = Math.round((goal.completedHours + hoursToAdd) * 100) / 100;
 
-                // 🆕 检查是否达成目标（但加薪已经按比例实时发放了）
                 var wasCompleted = goal.isCompleted;
                 if (goal.completedHours >= goal.targetHours) {
                     goal.isCompleted = true;
@@ -472,17 +423,20 @@
                 }
 
                 saveGoals(goals);
-
-                // 🆕 关键：每次保存后重新计算总加薪（按比例）
                 recalcTotalBonus();
                 updateTotalBonusDisplay();
                 renderGoals();
                 populateGoalSelect();
 
-                // 显示反馈（🆕 使用 showAlert）
                 var progress = Math.min(100, (goal.completedHours / goal.targetHours) * 100);
                 var earnedNow = (goal.completedHours / goal.targetHours) * goal.bonus;
                 earnedNow = Math.min(earnedNow, goal.bonus);
+                var earnedThisTime = earnedNow - previousEarned;
+
+                // 🆕 显示本次学习的加薪结果（在计时器区域）
+                if (earnedThisTime > 0.001) {
+                    showResultBonus(earnedThisTime);
+                }
 
                 if (goal.isCompleted && !wasCompleted) {
                     await showAlert('🎉 完成', '恭喜完成「' + goal.skillName + '」！\n累计获得 +' + earnedNow.toFixed(2) + ' 元/小时加薪！');
@@ -509,19 +463,13 @@
             }
 
             startBtn.addEventListener('click', function() {
-                if (isTimerRunning) {
-                    pauseTimer();
-                } else {
-                    startTimer();
-                }
+                if (isTimerRunning) { pauseTimer(); } else { startTimer(); }
             });
 
-            resetBtn.addEventListener('click', function() {
-                resetTimer();
-            });
+            resetBtn.addEventListener('click', function() { resetTimer(); });
 
             // ============================================================
-            // 3. 渲染目标列表（🆕 显示按比例已获加薪）
+            // 3. 渲染目标列表
             // ============================================================
 
             function renderGoals() {
@@ -545,7 +493,6 @@
                     var statusText = goal.isCompleted ? '✅ 已完成' : '⏳ 学习中';
                     var statusClass = goal.isCompleted ? 'completed-badge' : 'bg-surface-variant text-on-surface-variant';
 
-                    // 🆕 按比例计算已获加薪
                     var earnedBonus = Math.min(goal.bonus, (goal.completedHours / goal.targetHours) * goal.bonus);
                     var isFullyEarned = goal.isCompleted || earnedBonus >= goal.bonus - 0.001;
 
@@ -589,7 +536,6 @@
                 totalBonus = recalcTotalBonus();
                 var el = document.getElementById('total-bonus-display');
                 el.textContent = '+¥' + totalBonus.toFixed(2);
-                // 加薪变动时弹跳动画
                 el.classList.remove('bonus-pop');
                 void el.offsetWidth;
                 el.classList.add('bonus-pop');
@@ -628,7 +574,7 @@
             }
 
             // ============================================================
-            // 5. 操作函数：添加 / 删除（🆕 全部使用 showPrompt / showConfirm / showAlert）
+            // 5. 操作函数：添加 / 删除
             // ============================================================
 
             var skillRefs = [
@@ -652,7 +598,6 @@
                 };
                 goals.push(newGoal);
                 saveGoals(goals);
-                // 新目标加薪为 0（还没学），但 recalcTotalBonus 会重新计算所有目标
                 recalcTotalBonus();
                 updateTotalBonusDisplay();
                 renderGoals();
@@ -683,7 +628,7 @@
             }
 
             // ============================================================
-            // 6. 事件绑定（🆕 全部使用 showPrompt / showConfirm / showAlert）
+            // 6. 事件绑定
             // ============================================================
 
             document.getElementById('btn-add-goal').addEventListener('click', async function() {
