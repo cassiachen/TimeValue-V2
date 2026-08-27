@@ -332,7 +332,7 @@
                 <div class="flex-1 h-[1px] bg-surface-variant/50"></div>
             </div>
 
-            <div id="price-list-container" style="display:none;" class="flex flex-col gap-3">
+            <div id="price-list-container" class="flex flex-col gap-3">
                 <div id="items-container" class="flex flex-col gap-3">
                     <!-- 由 JS 渲染 -->
                 </div>
@@ -894,7 +894,7 @@
             // ============================================================
             // 9. 价格表折叠
             // ============================================================
-            var priceListVisible = false;
+            var priceListVisible = true;
             document.getElementById('toggle-price-list').addEventListener('click', function() {
                 priceListVisible = !priceListVisible;
                 var container = document.getElementById('price-list-container');
