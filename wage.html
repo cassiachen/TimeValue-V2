@@ -12,6 +12,7 @@
     <script src="shared/toast.js"></script>
     <script src="shared/modal.js"></script>
     <script src="shared/nav.js"></script>
+    <script src="shared/daily.js"></script>
     <script src="shared/tailwind-config.js"></script>
     <link href="shared/base.css" rel="stylesheet" />
     <style>
@@ -282,10 +283,10 @@
 
         <!-- ===== 今日已花 + 今日净值 ===== -->
         <section class="grid grid-cols-2 gap-3">
-            <div class="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center">
+            <button class="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center active:scale-[0.98] transition-transform duration-200" id="today-expense-card" type="button">
                 <span class="text-on-surface-variant font-label-sm text-label-sm">今日已花</span>
                 <span class="font-headline-md text-headline-md text-primary font-medium mt-0.5" id="today-expense">-¥0.00</span>
-            </div>
+            </button>
             <div class="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center justify-center">
                 <span class="text-on-surface-variant font-label-sm text-label-sm">今日净值</span>
                 <span class="font-headline-md text-headline-md text-primary font-medium mt-0.5" id="net-value">¥0.00</span>
@@ -375,6 +376,27 @@
     <!-- ===== 品牌水印 ===== -->
     <div class="text-center py-2 pb-safe">
         <span class="text-[11px] text-outline/40 tracking-[0.15em] font-light select-none">Cassia · 2025</span>
+    </div>
+
+    <!-- ============================================================
+    🆕 今日已花 明细弹窗
+    ============================================================ -->
+    <div class="modal-overlay" id="expense-detail-modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-headline-md text-headline-md-mobile text-primary">今日已花明细</h3>
+                <button class="text-on-surface-variant/40 hover:text-on-surface-variant transition-colors p-1" id="expense-detail-close-btn">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="expense-detail-list" class="flex flex-col gap-1 max-h-[50vh] overflow-y-auto">
+                <!-- 由 JS 渲染 -->
+            </div>
+            <div class="flex justify-between items-center pt-3 mt-2 border-t border-surface-variant/30">
+                <span class="font-body-md text-body-md text-on-surface-variant">合计</span>
+                <span class="font-headline-md text-headline-md text-primary font-medium" id="expense-detail-total">¥0.00</span>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -597,7 +619,42 @@
             var end = parseTime(workEnd);
             var lunchSeconds = (lunchBreak || 0) * 3600;
             var totalWorkSeconds = (end.totalSeconds - start.totalSeconds) - lunchSeconds;
-            var dailyExpense = monthlyExpenses / workDays;
+
+            // 房租/通勤按「月固定支出 ÷ 每月工作天数」分摊到每天（跟应用里其他地方的分摊方式保持一致）。
+            // 注意：settings.html 里已经把「三餐」从月固定支出里去掉了，三餐改成在 time.html 按天手动记录，
+            // 所以这里的 monthlyExpenses 现在只包含房租 + 通勤。
+            var dailyFixedShare = monthlyExpenses / workDays;
+
+            // ============================================================
+            // 🆕 5.5 今日已花 = 今天的记账消费总额 + 今天的固定支出（房租/通勤分摊 + 三餐）
+            // ============================================================
+            function getTodayTransactions() {
+                var all = TV.storage.get('transactions', []) || [];
+                var todayKey = TV.daily.todayKey();
+                return all.filter(function(t) {
+                    return t.timestamp && TV.daily.keyFromTimestamp(t.timestamp) === todayKey;
+                });
+            }
+
+            var todayExpenseTotal = 0;
+
+            // 重新从 localStorage 读取今天的记账记录 + 三餐记录，得到今日已花的明细和合计。
+            // 弹窗打开、删除一条记录、或者从其他页面切回来的时候都要调用一次。
+            function refreshTodayExpense() {
+                var todayTxns = getTodayTransactions();
+                var txnTotal = todayTxns.reduce(function(sum, t) { return sum + (t.amount || 0); }, 0);
+                var mealAmount = TV.daily.getMeal();
+                todayExpenseTotal = txnTotal + dailyFixedShare + mealAmount;
+                return {
+                    todayTxns: todayTxns,
+                    txnTotal: txnTotal,
+                    fixedShare: dailyFixedShare,
+                    mealAmount: mealAmount,
+                    total: todayExpenseTotal
+                };
+            }
+
+            refreshTodayExpense();
 
             var DAILY_EARNINGS_KEY = 'dailyEarningsHistory';
 
@@ -697,8 +754,6 @@
 
                 if (isTodayDone && todayEarnedCached !== null) {
                     earnedToday = todayEarnedCached;
-                    expenseToday = dailyExpense;
-                    netValue = earnedToday - expenseToday;
                     progress = 100;
                     workedSeconds = totalWorkSeconds;
                     leftSeconds = 0;
@@ -710,8 +765,6 @@
                 } else if (afterWork && !isTodayDone) {
                     workedSeconds = totalWorkSeconds;
                     earnedToday = workedSeconds * secondWageVal;
-                    expenseToday = dailyExpense;
-                    netValue = earnedToday - expenseToday;
                     progress = 100;
                     leftSeconds = 0;
                     saveTodayEarnings(earnedToday);
@@ -737,9 +790,6 @@
                     workedSeconds = Math.max(0, Math.min(workedSeconds, totalWorkSeconds));
 
                     earnedToday = workedSeconds * secondWageVal;
-                    expenseToday = (workedSeconds / totalWorkSeconds) * dailyExpense;
-                    if (currentSeconds >= end.totalSeconds) expenseToday = dailyExpense;
-                    netValue = earnedToday - expenseToday;
                     progress = totalWorkSeconds > 0 ? (workedSeconds / totalWorkSeconds) * 100 : 0;
                     progress = Math.max(0, Math.min(100, progress));
                     leftSeconds = totalWorkSeconds - workedSeconds;
@@ -757,6 +807,10 @@
                         liveLabel.textContent = '实时增长中';
                     }
                 }
+
+                // 🆕 今日已花 = 真实记账总额 + 固定支出（房租/通勤分摊 + 三餐），不再按上班进度插值
+                expenseToday = todayExpenseTotal;
+                netValue = earnedToday - expenseToday;
 
                 if (Math.abs(earnedToday - lastEarnedValue) > 0.005) {
                     triggerNumberPop();
@@ -910,7 +964,101 @@
                 if (!document.hidden) {
                     updateReport(currentPeriod);
                     updateLearningUI();
+                    // 🆕 从 time.html 切回来时，重新读一遍今天的记账/三餐记录
+                    refreshTodayExpense();
                 }
+            });
+
+            // ============================================================
+            // 🆕 7. 今日已花明细弹窗
+            // ============================================================
+            var expenseModal = document.getElementById('expense-detail-modal');
+            var expenseListEl = document.getElementById('expense-detail-list');
+            var expenseTotalEl = document.getElementById('expense-detail-total');
+
+            function fixedExpenseRowHtml(label, amount, deletable, deleteClass) {
+                return '<div class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-surface-container-lowest">' +
+                    '<div class="flex items-center gap-2 min-w-0 flex-1">' +
+                        '<span class="font-body-md text-body-md text-primary truncate">' + label + '</span>' +
+                        '<span class="text-[10px] text-on-surface-variant/60 bg-surface-container px-1.5 py-0.5 rounded flex-shrink-0">固定支出</span>' +
+                    '</div>' +
+                    '<div class="text-right flex items-center gap-2 flex-shrink-0">' +
+                        '<span class="font-body-md text-body-md text-primary font-medium">¥' + amount.toFixed(2) + '</span>' +
+                        (deletable
+                            ? '<button class="' + deleteClass + ' text-on-surface-variant/30 hover:text-error transition-colors p-1" aria-label="删除"><span class="material-symbols-outlined text-[16px]">close</span></button>'
+                            : '<span class="w-[26px] inline-block"></span>') +
+                    '</div>' +
+                '</div>';
+            }
+
+            function transactionRowHtml(t) {
+                return '<div class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-colors">' +
+                    '<div class="min-w-0 flex-1">' +
+                        '<div class="font-body-md text-body-md text-primary truncate">' + t.name + '</div>' +
+                        '<div class="text-xs text-on-surface-variant/50">' + (t.category || '') + (t.note ? ' · ' + t.note : '') + '</div>' +
+                    '</div>' +
+                    '<div class="text-right flex items-center gap-2 flex-shrink-0">' +
+                        '<span class="font-body-md text-body-md text-primary font-medium">¥' + (t.amount || 0).toFixed(2) + '</span>' +
+                        '<button class="delete-expense-txn-btn text-on-surface-variant/30 hover:text-error transition-colors p-1" data-id="' + t.id + '" aria-label="删除"><span class="material-symbols-outlined text-[16px]">close</span></button>' +
+                    '</div>' +
+                '</div>';
+            }
+
+            function renderExpenseDetail() {
+                var detail = refreshTodayExpense();
+                var html = '';
+
+                if (detail.fixedShare > 0) {
+                    html += fixedExpenseRowHtml('房租/通勤（按月分摊）', detail.fixedShare, false);
+                }
+                if (detail.mealAmount > 0) {
+                    html += fixedExpenseRowHtml('三餐', detail.mealAmount, true, 'delete-expense-meal-btn');
+                }
+                detail.todayTxns.slice().sort(function(a, b) { return b.timestamp - a.timestamp; }).forEach(function(t) {
+                    html += transactionRowHtml(t);
+                });
+
+                if (!html) {
+                    html = '<div class="text-center py-6 text-on-surface-variant/60 text-sm">今天还没有消费记录</div>';
+                }
+
+                expenseListEl.innerHTML = html;
+                expenseTotalEl.textContent = '¥' + detail.total.toFixed(2);
+
+                expenseListEl.querySelectorAll('.delete-expense-txn-btn').forEach(function(btn) {
+                    btn.addEventListener('click', async function() {
+                        var id = parseFloat(this.dataset.id);
+                        if (await showConfirm('删除确认', '确定要删除这条记录吗？')) {
+                            var all = TV.storage.get('transactions', []) || [];
+                            all = all.filter(function(t) { return t.id !== id; });
+                            TV.storage.set('transactions', all);
+                            renderExpenseDetail();
+                            update();
+                        }
+                    });
+                });
+
+                var mealDeleteBtn = expenseListEl.querySelector('.delete-expense-meal-btn');
+                if (mealDeleteBtn) {
+                    mealDeleteBtn.addEventListener('click', async function() {
+                        if (await showConfirm('删除确认', '确定要删除今天的三餐记录吗？')) {
+                            TV.daily.clearMeal();
+                            renderExpenseDetail();
+                            update();
+                        }
+                    });
+                }
+            }
+
+            document.getElementById('today-expense-card').addEventListener('click', function() {
+                renderExpenseDetail();
+                expenseModal.classList.add('show');
+            });
+            document.getElementById('expense-detail-close-btn').addEventListener('click', function() {
+                expenseModal.classList.remove('show');
+            });
+            expenseModal.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('show');
             });
 
         });
