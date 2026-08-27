@@ -10,6 +10,7 @@
     <script src="shared/toast.js"></script>
     <script src="shared/modal.js"></script>
     <script src="shared/nav.js"></script>
+    <script src="shared/daily.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="shared/tailwind-config.js"></script>
@@ -116,40 +117,7 @@
             opacity: 1;
         }
 
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            z-index: 200;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .modal-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-content {
-            background: #ffffff;
-            border-radius: 24px 24px 0 0;
-            padding: 24px 20px 32px;
-            max-width: 420px;
-            width: 100%;
-            transform: translateY(20px);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-overlay.show .modal-content {
-            transform: translateY(0);
-        }
+        /* .modal-overlay / .modal-content 已挪到 shared/base.css（wage.html 的今日已花明细弹窗也在用） */
 
         .category-option {
             padding: 10px 14px;
@@ -276,6 +244,20 @@
         </section>
 
         <!-- ============================================================
+        🆕 记一笔 + 三餐（并排放在记账记录上方）
+        ============================================================ -->
+        <section class="grid grid-cols-2 gap-2 animate-fade-in-up" style="animation-delay:0.12s;">
+            <button class="h-[48px] bg-primary text-on-primary rounded-xl font-body-md text-body-md flex items-center justify-center gap-2 active:scale-[0.98] transition-transform duration-200 shadow-[0_4px_16px_rgba(0,0,0,0.06)]" id="btn-add-transaction">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                记一笔
+            </button>
+            <button class="h-[48px] bg-surface-container-low text-primary rounded-xl font-body-md text-body-md flex items-center justify-center gap-2 active:scale-[0.98] transition-transform duration-200 border border-dashed border-outline-variant" id="btn-add-meals">
+                <span class="material-symbols-outlined text-[20px]">restaurant</span>
+                今天三餐吃了多少钱？
+            </button>
+        </section>
+
+        <!-- ============================================================
         记账列表
         ============================================================ -->
         <section class="flex-1 animate-fade-in-up" style="animation-delay:0.15s;">
@@ -285,19 +267,14 @@
             <div id="empty-state" class="text-center py-10 text-on-surface-variant/60" style="display:none;">
                 <span class="material-symbols-outlined text-[48px] block mx-auto mb-3 float-icon" style="color:#4edea3;">receipt_long</span>
                 <p class="font-body-md text-body-md">还没有记账记录</p>
-                <p class="font-label-sm text-label-sm opacity-60">点击下方「记一笔」开始</p>
+                <p class="font-label-sm text-label-sm opacity-60">点击上方「记一笔」开始</p>
             </div>
         </section>
 
         <!-- ============================================================
-        记一笔 + 价格表
+        价格表
         ============================================================ -->
         <section class="flex flex-col gap-3 animate-fade-in-up" style="animation-delay:0.2s;">
-
-            <button class="w-full h-[48px] bg-primary text-on-primary rounded-xl font-body-md text-body-md flex items-center justify-center gap-2 active:scale-[0.98] transition-transform duration-200 shadow-[0_4px_16px_rgba(0,0,0,0.06)]" id="btn-add-transaction">
-                <span class="material-symbols-outlined text-[20px]">add</span>
-                记一笔
-            </button>
 
             <div class="flex items-center gap-3 mt-2">
                 <div class="flex-1 h-[1px] bg-surface-variant/50"></div>
@@ -319,6 +296,7 @@
             </div>
 
         </section>
+
 
     </main>
 
@@ -403,6 +381,12 @@
             var workDays = userData && userData.workDays ? userData.workDays : 22;
             var workHoursPerDay = userData && userData.workHoursPerDay ? userData.workHoursPerDay : 8;
             var hourlyWage = salary / (workDays * workHoursPerDay);
+
+            // 🆕 净值时薪 = (月薪 - 月固定支出) ÷ (每月工作天数 × 每日工作时长)
+            // 只用于下面的"人生价格表"（renderItems），其他地方（生命小时统计、记账预览等）
+            // 仍然用毛时薪 hourlyWage，没有改动。
+            var monthlyExpenses = userData && userData.monthlyExpenses ? userData.monthlyExpenses : 0;
+            var netHourlyWage = (salary - monthlyExpenses) / (workDays * workHoursPerDay);
 
             document.getElementById('hourly-wage-display').textContent = '¥' + hourlyWage.toFixed(2);
 
@@ -679,7 +663,8 @@
 
                 var html = '';
                 items.forEach(function(item, index) {
-                    var hours = item.price / hourlyWage;
+                    // 🆕 人生价格表用净值时薪，不用毛时薪：反映用剩余可支配收入买这件东西需要工作多久
+                    var hours = item.price / netHourlyWage;
                     var days = hours / workHoursPerDay;
                     html += `
                         <div class="price-card bg-surface-container-lowest rounded-xl p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex flex-col gap-2 transition-transform active:scale-[0.98] duration-300" data-index="${index}">
@@ -840,6 +825,29 @@
             });
 
             // ============================================================
+            // 🆕 7.5 三餐按钮：点击填今天的三餐总花费，提交后当天隐藏，第二天自动重新出现
+            // ============================================================
+            var btnAddMeals = document.getElementById('btn-add-meals');
+
+            function refreshMealsButton() {
+                btnAddMeals.style.display = TV.daily.hasMeal() ? 'none' : 'flex';
+            }
+            refreshMealsButton();
+
+            btnAddMeals.addEventListener('click', async function() {
+                var priceStr = await showPrompt('今天三餐吃了多少钱？', '记入今天的固定支出', '如：35');
+                if (priceStr === null) return;
+                var amount = parseFloat(priceStr.replace(/[^\d.]/g, ''));
+                if (isNaN(amount) || amount < 0) {
+                    await showAlert('提示', '请输入有效的金额');
+                    return;
+                }
+                TV.daily.setMeal(amount);
+                refreshMealsButton();
+                await showAlert('✅ 已记录', '今天的三餐花费 ¥' + amount.toFixed(2) + ' 已计入固定支出');
+            });
+
+            // ============================================================
             // 8. 筛选器
             // ============================================================
             document.querySelectorAll('.filter-tag').forEach(function(btn) {
@@ -907,11 +915,14 @@
                             var newSalary = freshData.monthlySalary || 10000;
                             var newWorkDays = freshData.workDays || 22;
                             var newWorkHours = freshData.workHoursPerDay || 8;
-                            if (newSalary !== salary || newWorkDays !== workDays || newWorkHours !== workHoursPerDay) {
+                            var newMonthlyExpenses = freshData.monthlyExpenses || 0;
+                            if (newSalary !== salary || newWorkDays !== workDays || newWorkHours !== workHoursPerDay || newMonthlyExpenses !== monthlyExpenses) {
                                 salary = newSalary;
                                 workDays = newWorkDays;
                                 workHoursPerDay = newWorkHours;
+                                monthlyExpenses = newMonthlyExpenses;
                                 hourlyWage = salary / (workDays * workHoursPerDay);
+                                netHourlyWage = (salary - monthlyExpenses) / (workDays * workHoursPerDay);
                                 document.getElementById('hourly-wage-display').textContent = '¥' + hourlyWage.toFixed(2);
                                 renderAll();
                             }
@@ -922,6 +933,8 @@
                         transactions = freshTxns;
                         renderAll();
                     }
+                    // 🆕 处理跨天：日期变了的话，昨天填过的三餐不该继续隐藏按钮
+                    refreshMealsButton();
                 }
             });
 
