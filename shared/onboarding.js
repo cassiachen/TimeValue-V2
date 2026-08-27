@@ -1,219 +1,226 @@
-// 时值 TimeValue 新手指引组件 - 自动检测页面，无需手动调用
+// 时值 TimeValue 新手指引
+// 首次打开时显示，一次性介绍四个页面
 (function () {
-    // 防止重复注入
-    if (window.TV && window.TV.onboarding) return;
+    if (window.TV && TV.onboardingLoaded) return;
     if (!window.TV) window.TV = {};
+    window.TV.onboardingLoaded = true;
 
-    // 配置：根据页面路径自动匹配
-    var GUIDES = {
-        wage: {
-            key: 'guide_wage_seen',
-            icon: '💰',
-            title: '今日工资',
-            desc: '看看你今天赚了多少',
-            cta: '去看看 →',
-            target: 'wage.html'
-        },
-        learn: {
-            key: 'guide_learn_seen',
-            icon: '📚',
-            title: '学习涨薪',
-            desc: '学多少，加多少！',
-            cta: '去学习 →',
-            target: 'learn.html'
-        },
-        time: {
-            key: 'guide_time_seen',
-            icon: '💸',
-            title: '时间消费',
-            desc: '用时间换来的每一笔，都算数',
-            cta: '去记账 →',
-            target: 'time.html'
-        },
-        life: {
-            key: 'guide_life_seen',
-            icon: '🌱',
-            title: '人生剩余',
-            desc: '你的人生还剩多少格子？',
-            cta: '去看看 →',
-            target: 'life.html'
-        }
-    };
+    var slides = [{
+        icon: '💰',
+        title: '今日工资',
+        desc: '实时查看你今天赚了多少钱，精确到每一秒。\n时薪、分薪、秒薪——你的时间价值一目了然。\n下班后自动结算，每天的收入都清晰记录。'
+    }, {
+        icon: '📚',
+        title: '学习涨薪',
+        desc: '学习就是给自己加薪！\n设定学习目标，每学一小时，时薪就涨一点。\n学多少，加多少，让你的时间越来越值钱。'
+    }, {
+        icon: '💸',
+        title: '时间消费',
+        desc: '每一次消费，都是一次时间的交换。\n记录你的每一笔支出，看看你用了多少生命去换取它。\n理性消费，从看清时间的代价开始。'
+    }, {
+        icon: '🌱',
+        title: '人生剩余',
+        desc: '人生是一张格子图，每一格代表一周。\n你还有多少格子？想在哪里留下标记？\n记录里程碑，写下每日反思，活得更清醒。'
+    }];
 
-    // 根据当前页面路径自动匹配
-    function detectPage() {
-        var path = window.location.pathname;
-        var filename = path.split('/').pop() || 'index.html';
-        if (filename === 'wage.html' || filename === '') return 'wage';
-        if (filename === 'learn.html') return 'learn';
-        if (filename === 'time.html') return 'time';
-        if (filename === 'life.html') return 'life';
-        return null;
+    var currentIndex = 0;
+
+    // 样式
+    var style = document.createElement('style');
+    style.textContent = [
+        '.tv-onboarding-overlay{position:fixed;top:0;left:0;width:100%;height:100%;',
+        'background:#f9f9fb;z-index:9999;display:flex;flex-direction:column;',
+        'justify-content:center;align-items:center;padding:40px 32px;',
+        'opacity:0;transition:opacity 0.6s ease;}',
+        '.tv-onboarding-overlay.show{opacity:1;}',
+        '.tv-onboarding-overlay .slide{display:none;flex-direction:column;',
+        'align-items:center;text-align:center;max-width:400px;width:100%;}',
+        '.tv-onboarding-overlay .slide.active{display:flex;animation:fadeSlide 0.5s ease;}',
+        '@keyframes fadeSlide{from{opacity:0;transform:translateY(20px);}',
+        'to{opacity:1;transform:translateY(0);}}',
+        '.tv-onboarding-overlay .icon{font-size:64px;margin-bottom:20px;}',
+        '.tv-onboarding-overlay .title{font-family:Inter,sans-serif;font-size:28px;',
+        'font-weight:700;color:#030304;margin-bottom:12px;letter-spacing:-0.01em;}',
+        '.tv-onboarding-overlay .desc{font-family:Inter,sans-serif;font-size:16px;',
+        'font-weight:400;color:#46464a;line-height:1.7;white-space:pre-line;}',
+        '.tv-onboarding-overlay .desc strong{color:#030304;font-weight:600;}',
+        '.tv-onboarding-overlay .dots{display:flex;gap:8px;margin-top:32px;}',
+        '.tv-onboarding-overlay .dot{width:8px;height:8px;border-radius:999px;',
+        'background:#c7c6ca;transition:all 0.3s ease;}',
+        '.tv-onboarding-overlay .dot.active{width:24px;background:#4edea3;}',
+        '.tv-onboarding-overlay .bottom{display:flex;justify-content:space-between;',
+        'align-items:center;width:100%;max-width:400px;margin-top:32px;}',
+        '.tv-onboarding-overlay .skip{font-family:Inter,sans-serif;font-size:14px;',
+        'font-weight:500;color:#77767b;cursor:pointer;padding:8px 4px;',
+        'transition:color 0.2s ease;background:none;border:none;}',
+        '.tv-onboarding-overlay .skip:hover{color:#030304;}',
+        '.tv-onboarding-overlay .next{font-family:Inter,sans-serif;font-size:15px;',
+        'font-weight:600;color:#ffffff;background:#030304;padding:12px 28px;',
+        'border-radius:999px;cursor:pointer;transition:all 0.2s ease;',
+        'border:none;box-shadow:0 4px 16px rgba(0,0,0,0.06);}',
+        '.tv-onboarding-overlay .next:hover{opacity:0.9;}',
+        '.tv-onboarding-overlay .next:active{transform:scale(0.97);}',
+        '@media (max-width:480px){.tv-onboarding-overlay .icon{font-size:48px;}',
+        '.tv-onboarding-overlay .title{font-size:24px;}',
+        '.tv-onboarding-overlay .desc{font-size:15px;}}'
+    ].join('');
+    document.head.appendChild(style);
+
+    // DOM
+    var overlay = document.createElement('div');
+    overlay.className = 'tv-onboarding-overlay';
+    overlay.innerHTML = [
+        '<div class="slide active" data-index="0">',
+        '  <div class="icon">💰</div>',
+        '  <div class="title">今日工资</div>',
+        '  <div class="desc">实时查看你今天赚了多少钱，精确到每一秒。\n时薪、分薪、秒薪——你的时间价值一目了然。\n下班后自动结算，每天的收入都清晰记录。</div>',
+        '</div>',
+        '<div class="slide" data-index="1">',
+        '  <div class="icon">📚</div>',
+        '  <div class="title">学习涨薪</div>',
+        '  <div class="desc">学习就是给自己加薪！\n设定学习目标，每学一小时，时薪就涨一点。\n学多少，加多少，让你的时间越来越值钱。</div>',
+        '</div>',
+        '<div class="slide" data-index="2">',
+        '  <div class="icon">💸</div>',
+        '  <div class="title">时间消费</div>',
+        '  <div class="desc">每一次消费，都是一次时间的交换。\n记录你的每一笔支出，看看你用了多少生命去换取它。\n理性消费，从看清时间的代价开始。</div>',
+        '</div>',
+        '<div class="slide" data-index="3">',
+        '  <div class="icon">🌱</div>',
+        '  <div class="title">人生剩余</div>',
+        '  <div class="desc">人生是一张格子图，每一格代表一周。\n你还有多少格子？想在哪里留下标记？\n记录里程碑，写下每日反思，活得更清醒。</div>',
+        '</div>',
+        '<div class="dots" id="tv-dots"></div>',
+        '<div class="bottom">',
+        '  <button class="skip" id="tv-skip">跳过</button>',
+        '  <button class="next" id="tv-next">下一步</button>',
+        '</div>'
+    ].join('');
+    document.body.appendChild(overlay);
+
+    var slidesEls = overlay.querySelectorAll('.slide');
+    var dotsEl = document.getElementById('tv-dots');
+    var skipBtn = document.getElementById('tv-skip');
+    var nextBtn = document.getElementById('tv-next');
+
+    // 创建圆点
+    for (var i = 0; i < slides.length; i++) {
+        var dot = document.createElement('span');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.dataset.index = i;
+        dotsEl.appendChild(dot);
     }
+    var dots = dotsEl.querySelectorAll('.dot');
 
-    var pageKey = detectPage();
-    if (!pageKey) return;
-
-    var config = GUIDES[pageKey];
-    if (!config) return;
-
-    // 检查是否已看过
-    var seen = localStorage.getItem(config.key);
-    if (seen === 'true') return;
-
-    var STYLE_ID = 'tv-onboarding-style';
-    if (!document.getElementById(STYLE_ID)) {
-        var style = document.createElement('style');
-        style.id = STYLE_ID;
-        style.textContent = [
-            '.tv-onboarding-wrapper{position:fixed;bottom:88px;left:12px;right:12px;z-index:9998;',
-            'transform:translateY(80px);opacity:0;pointer-events:none;',
-            'transition:all 0.5s cubic-bezier(0.16,1,0.3,1);}',
-            '.tv-onboarding-wrapper.show{transform:translateY(0);opacity:1;pointer-events:auto;}',
-            '.tv-onboarding-card{background:#ffffff;border-radius:16px;',
-            'padding:12px 16px;display:flex;align-items:center;gap:14px;',
-            'box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.04);',
-            'cursor:pointer;position:relative;user-select:none;-webkit-user-select:none;}',
-            '.tv-onboarding-card .drag-hint{position:absolute;top:-4px;left:50%;',
-            'transform:translateX(-50%);width:36px;height:3px;',
-            'background:#e2e2e4;border-radius:999px;opacity:0.4;}',
-            '.tv-onboarding-card .icon{font-size:24px;flex-shrink:0;width:36px;text-align:center;}',
-            '.tv-onboarding-card .text{flex:1;min-width:0;}',
-            '.tv-onboarding-card .text .title{font-family:Inter,system-ui,sans-serif;',
-            'font-size:14px;font-weight:600;color:#030304;line-height:1.3;}',
-            '.tv-onboarding-card .text .desc{font-family:Inter,system-ui,sans-serif;',
-            'font-size:12px;font-weight:400;color:#77767b;line-height:1.3;margin-top:1px;}',
-            '.tv-onboarding-card .cta{font-family:Inter,system-ui,sans-serif;',
-            'font-size:13px;font-weight:600;color:#4edea3;flex-shrink:0;',
-            'padding:4px 0;white-space:nowrap;}',
-            '.tv-onboarding-card .close-btn{background:none;border:none;',
-            'color:#c7c6ca;font-size:16px;cursor:pointer;padding:4px;flex-shrink:0;',
-            'transition:color 0.2s ease;line-height:1;}',
-            '.tv-onboarding-card .close-btn:hover{color:#77767b;}',
-            '@keyframes slideUp{from{transform:translateY(20px);opacity:0;}',
-            'to{transform:translateY(0);opacity:1;}}',
-            '.tv-onboarding-card.animate{animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards;}',
-            '@media (max-width:480px){.tv-onboarding-card{padding:10px 14px;gap:10px;}',
-            '.tv-onboarding-card .icon{font-size:20px;width:30px;}',
-            '.tv-onboarding-card .text .title{font-size:13px;}',
-            '.tv-onboarding-card .text .desc{font-size:11px;}',
-            '.tv-onboarding-card .cta{font-size:12px;}}'
-        ].join('');
-        document.head.appendChild(style);
-    }
-
-    // 创建浮条 DOM
-    function createCard(config) {
-        var wrapper = document.createElement('div');
-        wrapper.className = 'tv-onboarding-wrapper';
-        wrapper.id = 'tv-onboarding-wrapper';
-
-        wrapper.innerHTML = [
-            '<div class="tv-onboarding-card" id="tv-onboarding-card">',
-            '  <div class="drag-hint"></div>',
-            '  <span class="icon">' + config.icon + '</span>',
-            '  <div class="text">',
-            '    <div class="title">' + config.title + '</div>',
-            '    <div class="desc">' + config.desc + '</div>',
-            '  </div>',
-            '  <span class="cta">' + config.cta + '</span>',
-            '  <button class="close-btn" id="tv-onboarding-close">✕</button>',
-            '</div>'
-        ].join('');
-
-        document.body.appendChild(wrapper);
-        return wrapper;
-    }
-
-    // 显示浮条
-    function show() {
-        var wrapper = createCard(config);
-        var card = document.getElementById('tv-onboarding-card');
-        var closeBtn = document.getElementById('tv-onboarding-close');
-
-        function markSeen() {
-            localStorage.setItem(config.key, 'true');
-        }
-
-        function dismiss() {
-            wrapper.classList.remove('show');
-            setTimeout(function () {
-                if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
-            }, 500);
-        }
-
-        card.addEventListener('click', function (e) {
-            if (e.target.closest('.close-btn')) return;
-            markSeen();
-            dismiss();
-            setTimeout(function () {
-                window.location.href = config.target;
-            }, 300);
+    function goTo(index) {
+        if (index < 0 || index >= slides.length) return;
+        slidesEls.forEach(function(el, i) {
+            el.classList.toggle('active', i === index);
         });
-
-        closeBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            markSeen();
-            dismiss();
+        dots.forEach(function(el, i) {
+            el.classList.toggle('active', i === index);
         });
+        currentIndex = index;
+        nextBtn.textContent = index === slides.length - 1 ? '开始使用' : '下一步';
+        // 重新触发动画
+        var activeSlide = slidesEls[index];
+        activeSlide.style.animation = 'none';
+        setTimeout(function() {
+            activeSlide.style.animation = '';
+        }, 10);
+    }
 
-        // 右滑关闭
-        var startX = 0,
-            startY = 0,
-            isDragging = false;
-        card.addEventListener('touchstart', function (e) {
-            var touch = e.touches[0];
-            startX = touch.clientX;
-            startY = touch.clientY;
-            isDragging = false;
-        }, { passive: true });
+    function next() {
+        if (currentIndex === slides.length - 1) {
+            dismiss();
+        } else {
+            goTo(currentIndex + 1);
+        }
+    }
 
-        card.addEventListener('touchmove', function (e) {
-            var touch = e.touches[0];
-            var deltaX = touch.clientX - startX;
-            var deltaY = touch.clientY - startY;
-            if (Math.abs(deltaX) > 10 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
-                isDragging = true;
-                var progress = Math.min(1, Math.abs(deltaX) / 150);
-                var opacity = 1 - progress * 0.7;
-                var translate = deltaX;
-                card.style.transform = 'translateX(' + translate + 'px)';
-                card.style.opacity = opacity;
+    function dismiss() {
+        localStorage.setItem('guide_seen', 'true');
+        overlay.classList.remove('show');
+        setTimeout(function() {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 600);
+    }
+
+    // 事件
+    nextBtn.addEventListener('click', next);
+
+    skipBtn.addEventListener('click', function() {
+        dismiss();
+    });
+
+    // 点击圆点跳转
+    dots.forEach(function(dot) {
+        dot.addEventListener('click', function() {
+            goTo(parseInt(this.dataset.index));
+        });
+    });
+
+    // 键盘左右键切换
+    document.addEventListener('keydown', function(e) {
+        if (!overlay.parentNode) return;
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            if (currentIndex === slides.length - 1) {
+                dismiss();
+            } else {
+                goTo(currentIndex + 1);
             }
-        }, { passive: true });
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            if (currentIndex > 0) goTo(currentIndex - 1);
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            dismiss();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            next();
+        }
+    });
 
-        card.addEventListener('touchend', function (e) {
-            if (isDragging) {
-                var transform = card.style.transform || '';
-                var match = transform.match(/translateX\((-?\d+)px\)/);
-                if (match && Math.abs(parseInt(match[1])) > 80) {
-                    markSeen();
+    // 触摸滑动
+    var touchStartX = 0;
+    var touchEndX = 0;
+    var isSwiping = false;
+
+    overlay.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        isSwiping = false;
+    }, { passive: true });
+
+    overlay.addEventListener('touchmove', function(e) {
+        var deltaX = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(deltaX) > 10) isSwiping = true;
+    }, { passive: true });
+
+    overlay.addEventListener('touchend', function(e) {
+        if (!isSwiping) {
+            // 如果只是点击而非滑动，不处理
+            return;
+        }
+        touchEndX = e.changedTouches[0].screenX;
+        var diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 40) {
+            if (diff > 0) {
+                // 左滑 → 下一页
+                if (currentIndex === slides.length - 1) {
                     dismiss();
                 } else {
-                    card.style.transform = '';
-                    card.style.opacity = '';
+                    goTo(currentIndex + 1);
                 }
+            } else {
+                // 右滑 → 上一页
+                if (currentIndex > 0) goTo(currentIndex - 1);
             }
-            isDragging = false;
-        }, { passive: true });
+        }
+    }, { passive: true });
 
-        setTimeout(function () {
-            wrapper.classList.add('show');
-            if (card) card.classList.add('animate');
-        }, 600);
-
-        setTimeout(function () {
-            if (wrapper.parentNode) {
-                markSeen();
-                dismiss();
-            }
-        }, 12000);
-    }
-
-    // 等待 DOM 加载完成后显示
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', show);
-    } else {
-        show();
-    }
+    // 显示
+    setTimeout(function() {
+        overlay.classList.add('show');
+    }, 400);
 })();
