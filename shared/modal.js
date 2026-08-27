@@ -193,16 +193,14 @@
         };
     }
 })();
-        // ============================================================
-    // 🆕 自动加载新手指引（首次打开时显示一次，介绍四个页面）
+           // ============================================================
+    // 🆕 自动加载聚焦导览
     // ============================================================
-    // 检查是否已看过
-    if (!localStorage.getItem('guide_seen')) {
-        // 延迟加载，确保页面先渲染
+    if (!localStorage.getItem('tour_seen')) {
         setTimeout(function () {
             var script = document.createElement('script');
-            script.src = 'shared/onboarding.js';
+            script.src = 'shared/tour.js';
             script.async = true;
             document.head.appendChild(script);
-        }, 500);
+        }, 600);
     }
